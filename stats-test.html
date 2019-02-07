@@ -1,0 +1,997 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2019-02-07 Thu 14:33 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="viewport" content="width=device-width, initial-scale=1" />
+<title></title>
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Abram Hindle" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline11">1. Statistical Tests</a>
+<ul>
+<li><a href="#orgheadline1">1.1. P-Values</a></li>
+<li><a href="#orgheadline3">1.2. T-Test</a>
+<ul>
+<li><a href="#orgheadline2">1.2.1. T-Test in R</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline5">1.3. Wilcoxon</a>
+<ul>
+<li><a href="#orgheadline4">1.3.1. Wilcoxon in R</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline8">1.4. Kolmogorov-Smirnov Tests</a>
+<ul>
+<li><a href="#orgheadline7">1.4.1. R</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline10">1.5. X<sup>2</sup> Test</a>
+<ul>
+<li><a href="#orgheadline9">1.5.1. R</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline27">2. Bootstrapping and Confidence Intervals</a>
+<ul>
+<li><a href="#orgheadline14">2.1. Confidence intervals</a>
+<ul>
+<li><a href="#orgheadline12">2.1.1. Are 2 distributions similar?</a></li>
+<li><a href="#orgheadline13">2.1.2. How do we calculate?</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline15">2.2. Bootstrapping</a></li>
+<li><a href="#orgheadline18">2.3. Bootstrapping a mean example</a>
+<ul>
+<li><a href="#orgheadline16">2.3.1. R code</a></li>
+<li><a href="#orgheadline17">2.3.2. R Run</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline23">2.4. Difference of means</a>
+<ul>
+<li><a href="#orgheadline19">2.4.1. R code</a></li>
+<li><a href="#orgheadline20">2.4.2. R Run</a></li>
+<li><a href="#orgheadline21">2.4.3. Plot it</a></li>
+<li><a href="#orgheadline22">2.4.4. Results</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline26">2.5. Difference of X?</a>
+<ul>
+<li><a href="#orgheadline24">2.5.1. R code for difference of skews</a></li>
+<li><a href="#orgheadline25">2.5.2. Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline11" class="outline-2">
+<h2 id="orgheadline11"><span class="section-number-2">1</span> Statistical Tests</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1"><span class="section-number-3">1.1</span> P-Values</h3>
+<div class="outline-text-3" id="text-1-1">
+<ul class="org-ul">
+<li>Can we accept or reject the null hypothesis?
+<ul class="org-ul">
+<li>usually choose a threshold</li>
+<li>0.05 is popular</li>
+<li>0.01 is safer</li>
+<li>People get uncomfortable when you get values anywhere near
+there.</li>
+<li>P-values are not really comparable. Maybe in magnitude.</li>
+<li>Large datasets generally cause pretty clear p-values.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3"><span class="section-number-3">1.2</span> T-Test</h3>
+<div class="outline-text-3" id="text-1-2">
+<ul class="org-ul">
+<li>Student's T Test
+<ul class="org-ul">
+<li>Originally used to for ensuring the quality of beer
+<ul class="org-ul">
+<li>Not just any beer: Guiness</li>
+</ul></li>
+<li>process comparison</li>
+<li>Compare distributions</li>
+<li>Student is William Sealy Gosset, Student is a pen name.</li>
+<li>Why do we care?
+<ul class="org-ul">
+<li>Compare if two generally normally distributions 
+have equal means?</li>
+<li>What if we got lucky and found the means to be the same? 
+<ul class="org-ul">
+<li>What is the chance of that?</li>
+</ul></li>
+<li>Can we trust it?</li>
+</ul></li>
+<li>When not to use it:
+<ul class="org-ul">
+<li>when the data is not normal.</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="outline-container-orgheadline2" class="outline-4">
+<h4 id="orgheadline2"><span class="section-number-4">1.2.1</span> T-Test in R</h4>
+<div class="outline-text-4" id="text-1-2-1">
+<ul class="org-ul">
+<li><p>
+in R:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-R">t.test(rnorm(100),rnorm(100))
+t.test(runif(100),rnorm(100))
+t.test(rnorm(100,1),rnorm(100))
+</pre>
+</div>
+<pre class="example">
+&gt; t.test(rnorm(100),rnorm(100))
+
+    Welch Two Sample t-test
+
+data:  rnorm(100) and rnorm(100) 
+t = 0.3034, df = 193.367, p-value = 0.7619
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.2330280  0.3177391 
+sample estimates:
+ mean of x  mean of y 
+0.07018111 0.02782554 
+
+&gt; t.test(runif(100),rnorm(100))
+
+    Welch Two Sample t-test
+
+data:  runif(100) and rnorm(100) 
+t = 2.7514, df = 115.295, p-value = 0.006893
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ 0.08531389 0.52385119 
+sample estimates:
+mean of x mean of y 
+0.4778445 0.1732620 
+
+&gt; t.test(rnorm(100,1),rnorm(100))
+
+    Welch Two Sample t-test
+
+data:  rnorm(100, 1) and rnorm(100) 
+t = 6.1553, df = 197.077, p-value = 4.116e-09
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ 0.5696437 1.1067288 
+sample estimates:
+mean of x mean of y 
+0.9432221 0.1050358 
+
+&gt; t.test(rnorm(100,1),rnorm(100))
+
+    Welch Two Sample t-test
+
+data:  rnorm(100, 1) and rnorm(100) 
+t = 5.6662, df = 195.334, p-value = 5.176e-08
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ 0.5409887 1.1186414 
+sample estimates:
+ mean of x  mean of y 
+0.85294237 0.02312732
+</pre></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline5" class="outline-3">
+<h3 id="orgheadline5"><span class="section-number-3">1.3</span> Wilcoxon</h3>
+<div class="outline-text-3" id="text-1-3">
+<ul class="org-ul">
+<li>Wilcoxon Test
+<ul class="org-ul">
+<li>non-parametric comparison of distributions</li>
+<li>It is about rank based agreement
+<ul class="org-ul">
+<li>if we look at the distribution by rank how similar is it?</li>
+</ul></li>
+<li>Pairwise comparison</li>
+<li>Good for non-normal distributions</li>
+<li>A little more strict than t-test</li>
+</ul></li>
+</ul>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-4">
+<h4 id="orgheadline4"><span class="section-number-4">1.3.1</span> Wilcoxon in R</h4>
+<div class="outline-text-4" id="text-1-3-1">
+<pre class="example">
+&gt; wilcox.test(rnorm(100),rnorm(100))
+
+      Wilcoxon rank sum test with continuity correction
+
+data:  rnorm(100) and rnorm(100) 
+W = 5490, p-value = 0.2317
+alternative hypothesis: true location shift is not equal to 0 
+
+&gt; wilcox.test(runif(100),rnorm(100))
+
+      Wilcoxon rank sum test with continuity correction
+
+data:  runif(100) and rnorm(100) 
+W = 6348, p-value = 0.0009931
+alternative hypothesis: true location shift is not equal to 0 
+
+&gt; wilcox.test(rnorm(100,1),rnorm(100))
+
+      Wilcoxon rank sum test with continuity correction
+
+data:  rnorm(100, 1) and rnorm(100) 
+W = 7418, p-value = 3.486e-09
+alternative hypothesis: true location shift is not equal to 0
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="orgheadline8"><span class="section-number-3">1.4</span> Kolmogorov-Smirnov Tests</h3>
+<div class="outline-text-3" id="text-1-4">
+<ul class="org-ul">
+<li>Non parametric</li>
+<li>good with SE data and data with skew</li>
+<li>compares the maximum distance between CDFs</li>
+<li>Usually used on continuous data but works on ECDFs.</li>
+<li>Very strict</li>
+<li>P-values &gt; 0.05 mean they are similar distributions or not
+different</li>
+</ul>
+</div>
+<div id="outline-container-orgheadline7" class="outline-4">
+<h4 id="orgheadline7"><span class="section-number-4">1.4.1</span> R</h4>
+<div class="outline-text-4" id="text-1-4-1">
+<p>
+#+BEGIN<sub>SRC</sub> R
+ks.test(rnorm(100),rnorm(100))
+ks.test(runif(100),rnorm(100))
+ks.test(rnorm(100,1),rnorm(100))
+#+END<sub>SRC</sub> R
+</p>
+</div>
+<ol class="org-ol"><li><a id="orgheadline6"></a>R Output<br  /><div class="outline-text-5" id="text-1-4-1-1">
+<pre class="example">
+&gt; ks.test(rnorm(100),rnorm(100))
+
+       Two-sample Kolmogorov-Smirnov test
+
+data:  rnorm(100) and rnorm(100) 
+D = 0.17, p-value = 0.1111
+alternative hypothesis: two-sided 
+
+&gt; ks.test(runif(100),rnorm(100))
+
+       Two-sample Kolmogorov-Smirnov test
+
+data:  runif(100) and rnorm(100) 
+D = 0.52, p-value = 3.612e-12
+alternative hypothesis: two-sided 
+
+&gt; ks.test(rnorm(100,1),rnorm(100))
+
+       Two-sample Kolmogorov-Smirnov test
+
+data:  rnorm(100, 1) and rnorm(100) 
+D = 0.46, p-value = 1.292e-09
+alternative hypothesis: two-sided
+</pre>
+</div></li></ol>
+</div>
+</div>
+<div id="outline-container-orgheadline10" class="outline-3">
+<h3 id="orgheadline10"><span class="section-number-3">1.5</span> X<sup>2</sup> Test</h3>
+<div class="outline-text-3" id="text-1-5">
+<ul class="org-ul">
+<li>Good for non-parametric distributions</li>
+<li>Good for counts</li>
+<li>You need to bin your data first</li>
+<li>it's input is a distribution</li>
+<li>watch it, the input is a distribution</li>
+<li>Not reliable on continuous values because you need to bin values</li>
+</ul>
+</div>
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="orgheadline9"><span class="section-number-4">1.5.1</span> R</h4>
+<div class="outline-text-4" id="text-1-5-1">
+<pre class="example">
+&gt; chisq.test(c(10,10,10,30),p=c(20,20,20,30),rescale.p=TRUE)
+
+    Chi-squared test for given probabilities
+
+data:  c(10, 10, 10, 30)
+X-squared = 7.5, df = 3, p-value = 0.05756
+
+&gt; chisq.test(c(10,10,10,30),p=c(4,5,6,7),rescale.p=TRUE)
+
+    Chi-squared test for given probabilities
+
+data:  c(10, 10, 10, 30)
+X-squared = 9.754, df = 3, p-value = 0.02078
+
+&gt; chisq.test(c(10,10,10,30),p=c(11,11,11,31),rescale.p=TRUE)
+
+    Chi-squared test for given probabilities
+
+data:  c(10, 10, 10, 30)
+X-squared = 0.058651, df = 3, p-value = 0.9963
+
+&gt; chisq.test(c(10,10,10,30),p=c(0,11,11,0),rescale.p=TRUE) # zeros are bad
+
+    Chi-squared test for given probabilities
+
+data:  c(10, 10, 10, 30)
+X-squared = Inf, df = 3, p-value &lt; 2.2e-16
+
+Warning message:
+In chisq.test(c(10, 10, 10, 30), p = c(0, 11, 11, 0), rescale.p = TRUE) :
+  Chi-squared approximation may be incorrect
+&gt; 
+&gt; south &lt;- c(10,20,30,40)
+&gt; north &lt;- c(5,30,30,40)
+&gt; nstab &lt;- as.table(rbind(south,north))
+&gt; chisq.test(nstab)
+
+    Pearson's Chi-squared test
+
+data:  nstab
+X-squared = 3.5468, df = 3, p-value = 0.3147
+
+&gt; south &lt;- c(10,20,30,40)
+&gt; north &lt;- c(90,30,30,40)
+&gt; nstab &lt;- as.table(rbind(south,north))
+&gt; chisq.test(nstab)
+
+    Pearson's Chi-squared test
+
+data:  nstab
+X-squared = 42.126, df = 3, p-value = 3.772e-09
+    &gt; 
+&gt; stbdtypes &lt;- c("Source","Test","Build","Doc")
+&gt; maint     &lt;- c("Adaptive","Perfective","Corrective")
+&gt; stbds &lt;- stbdtypes[runif(100)*4 + 1]
+&gt; maints &lt;- maint[runif(100)*3 + 1]
+&gt; head(stbds)
+[1] "Build"  "Build"  "Test"   "Source" "Test"   "Doc"   
+&gt; head(maints)
+[1] "Adaptive"   "Corrective" "Perfective" "Adaptive"   "Adaptive"  
+[6] "Corrective"
+&gt; st &lt;- table(stbds,maints)
+&gt; st
+        maints
+stbds    Adaptive Corrective Perfective
+  Build        11          8          3
+  Doc           5         11         13
+  Source        7         11          9
+  Test          9          5          8
+&gt; chisq.test(st)
+
+    Pearson's Chi-squared test
+
+data:  st
+X-squared = 10.148, df = 6, p-value = 0.1186
+
+&gt; st2 &lt;- t(cbind(st[,"Adaptive"],st[,"Corrective"]))
+&gt; st2
+     Build Doc Source Test
+[1,]    11   5      7    9
+[2,]     8  11     11    5
+&gt; chisq.test(st2)
+
+    Pearson's Chi-squared test
+
+data:  st2
+X-squared = 4.6304, df = 3, p-value = 0.201
+
+&gt; # example where we make a table with junk results
+&gt; st3 &lt;- t(cbind(st[,"Adaptive"],max(5,round(st[,"Corrective"]+10*rnorm(4)))))
+&gt; st3
+     Build Doc Source Test
+[1,]    11   5      7    9
+[2,]    11  11     11   11
+&gt; chisq.test(st3)
+
+    Pearson's Chi-squared test
+
+data:  st3
+X-squared = 1.4811, df = 3, p-value = 0.6866
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline27" class="outline-2">
+<h2 id="orgheadline27"><span class="section-number-2">2</span> Bootstrapping and Confidence Intervals</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-orgheadline14" class="outline-3">
+<h3 id="orgheadline14"><span class="section-number-3">2.1</span> Confidence intervals</h3>
+<div class="outline-text-3" id="text-2-1">
+<ul class="org-ul">
+<li>Confidence intervals tell us where we expect values to be.</li>
+<li>For instance the 95% confidence interval of the mean of our
+sample is [0.5,1.5].</li>
+<li>That would mean that in 95% of the cases derived from the
+population that we expect the mean to between 0.5 and 1.5.</li>
+<li>The 99% confidence interval might be wider: [0.3,1.7]
+<ul class="org-ul">
+<li>That means 99% of the mean estimates will be in that range.</li>
+<li>Higher confidence</li>
+<li>Wider range of the statistic.</li>
+</ul></li>
+<li>It gives us some idea of a range of values from the statistic.</li>
+<li>Given a range of statistics if we order them and clip off the bottom alpha/2 and top alpha/2 values we 
+get the remaining confidence interval.
+<ul class="org-ul">
+<li>95% has an alpha of 5% so clip the top 2.5% and bottom 2.5% off and look at min and max, that's
+our confidence interval.</li>
+</ul></li>
+</ul>
+</div>
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="orgheadline12"><span class="section-number-4">2.1.1</span> Are 2 distributions similar?</h4>
+<div class="outline-text-4" id="text-2-1-1">
+<ul class="org-ul">
+<li>Often we can use confidence intervals of the difference of means
+to determine if something is statistically significantly
+different or similar.</li>
+<li>Instead of just generating a p-value we can under the range.</li>
+<li>if the 95% confidence interval of mean(x) - mean(y) does not
+cross 0 it suggests that the distributions are significantly different.
+<ul class="org-ul">
+<li>e.g. 95% CI of [-0.5,-0.1] implies that 95% of the time
+difference of means between x and y is -0.5 to -0.1.
+<ul class="org-ul">
+<li>statistically significant difference!</li>
+</ul></li>
+<li>e.g. 95% CI of [0.1,0.5] implies that 95% of the time
+difference of means between x and y is 0.1 to 0.5
+<ul class="org-ul">
+<li>statistically significant difference!</li>
+</ul></li>
+<li>e.g. 95% CI of [-0.5,0.5] implies that 95% of the time
+difference of means between x and y is -0.5 to 0.5
+<ul class="org-ul">
+<li>not a statistically significant difference!</li>
+<li>the interval overlaps 0</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline13" class="outline-4">
+<h4 id="orgheadline13"><span class="section-number-4">2.1.2</span> How do we calculate?</h4>
+<div class="outline-text-4" id="text-2-1-2">
+<ul class="org-ul">
+<li>Informal &#x2013; we just estimate</li>
+<li>Direct calculation &#x2013; for parametric statistics there are parametric methods of calculating a CI</li>
+<li>Bootstrapping! Use a computer and sampling to abuse stats and
+produce a distribution of statistics!
+<ul class="org-ul">
+<li>we deal with non-parametric data so we like this one</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline15" class="outline-3">
+<h3 id="orgheadline15"><span class="section-number-3">2.2</span> Bootstrapping</h3>
+<div class="outline-text-3" id="text-2-2">
+<ul class="org-ul">
+<li><a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)">https://en.wikipedia.org/wiki/Bootstrapping_(statistics)</a></li>
+<li>Bootstrapping is sampling a lot.
+<ul class="org-ul">
+<li>massive amounts of random sampling without replacement of a sample</li>
+</ul></li>
+<li>What if the best information we have is the current sample?</li>
+<li>Boostrapping lets talk about statistics about statistics</li>
+<li>We can build confidence intervals with bootstrapping.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="orgheadline18"><span class="section-number-3">2.3</span> Bootstrapping a mean example</h3>
+<div class="outline-text-3" id="text-2-3">
+<ul class="org-ul">
+<li>we sampled 100 elements
+<ul class="org-ul">
+<li>we calculate 1 mean</li>
+<li>is this good enough?</li>
+<li>what if 1 big value is messing everything up?</li>
+<li>why don't we sample 100 elements 100 times from the 100 elements.
+<ul class="org-ul">
+<li>some of the outliers won't appear in all of the samples</li>
+<li>we now can calculate the mean of each of the samples</li>
+<li>we can now see the distribution of means
+<ul class="org-ul">
+<li>its location</li>
+<li>its shape</li>
+</ul></li>
+<li>fundamentally we are more confident about the expected mean</li>
+<li>We have a distribution now.
+<ul class="org-ul">
+<li>so what?</li>
+<li>take the mean again? Sure whatever.</li>
+<li>Why not the confidence interval?</li>
+<li>R quantile will sort and clip for us</li>
+<li>just return the min and max of the middle X % of the distribution</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="outline-container-orgheadline16" class="outline-4">
+<h4 id="orgheadline16"><span class="section-number-4">2.3.1</span> R code</h4>
+<div class="outline-text-4" id="text-2-3-1">
+<p>
+#+BEGIN<sub>SRC</sub> R
+N=100
+alpha = 0.05
+data = rnorm(N)
+mean(data)
+mean(sample(data,N,replace=TRUE))
+booted &lt;- sapply(c(1:N), function(i) { mean(sample(data,N,replace=TRUE)) })
+mean(booted)
+summary(booted)
+quantile(booted,c(alpha/2,1.0 - alpha/2))
+#+END<sub>SRC</sub> R
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">-0.0943985543925813</td>
+</tr>
+
+<tr>
+<td class="org-right">0.247765366599378</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgheadline17" class="outline-4">
+<h4 id="orgheadline17"><span class="section-number-4">2.3.2</span> R Run</h4>
+<div class="outline-text-4" id="text-2-3-2">
+<pre class="example">
+&gt;     N=100
+&gt;     alpha = 0.05
+&gt;     data = rnorm(N)
+&gt;     mean(data)
+[1] 0.1086147
+&gt;     mean(sample(data,N,replace=TRUE))
+[1] -0.0537734
+&gt;     booted &lt;- sapply(c(1:N), function(i) { mean(sample(data,N,replace=TRUE)) })
+&gt;     mean(booted)
+[1] 0.09648877
+&gt;     summary(booted)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-0.08934  0.02356  0.08938  0.09649  0.16576  0.35589 
+&gt;     quantile(booted,c(alpha/2,1.0 - alpha/2))
+      2.5%      97.5% 
+-0.0690190  0.2792187 
+&gt;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23"><span class="section-number-3">2.4</span> Difference of means</h3>
+<div class="outline-text-3" id="text-2-4">
+<ul class="org-ul">
+<li>we sampled 100 elements from each distribution (2)
+<ul class="org-ul">
+<li>we calculate  mean(d1) - means(d2)</li>
+<li>is this good enough?</li>
+<li>what if 1 big value is messing everything up?</li>
+<li>why don't we sample 100 elements 100 times from the each distribution of 100 elements.
+<ul class="org-ul">
+<li>we now can calculate the mean difference between each of these samples</li>
+<li>we can now see the distribution of difference means
+<ul class="org-ul">
+<li>its location</li>
+<li>its shape</li>
+</ul></li>
+<li>fundamentally we are more confident about the expected mean</li>
+<li>We have a distribution now.
+<ul class="org-ul">
+<li>so what?</li>
+<li>take the mean again? Sure whatever.</li>
+<li>Why not the confidence interval?</li>
+<li>R quantile will sort and clip for us</li>
+<li>just return the min and max of the middle X % of the distribution</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="outline-container-orgheadline19" class="outline-4">
+<h4 id="orgheadline19"><span class="section-number-4">2.4.1</span> R code</h4>
+<div class="outline-text-4" id="text-2-4-1">
+<div class="org-src-container">
+
+<pre class="src src-R">N=100
+alpha = 0.05
+data1 = rnorm(N)
+data2 = rnorm(N,mean=0.5)
+mean(data1)
+mean(data2)
+mean(data1) -  mean(data2)    
+booted <span style="color: #008b8b;">&lt;-</span> sapply(c(1:N), <span style="color: #a020f0;">function</span>(i) { 
+      mean( sample(data1,N,replace=<span style="color: #228b22;">TRUE</span>) ) - 
+      mean( sample(data2,N,replace=<span style="color: #228b22;">TRUE</span>)  ) })
+mean(booted)
+summary(booted)
+quantile(booted,c(alpha/2,1.0 - alpha/2))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline20" class="outline-4">
+<h4 id="orgheadline20"><span class="section-number-4">2.4.2</span> R Run</h4>
+<div class="outline-text-4" id="text-2-4-2">
+<pre class="example">
+&gt;     N=100
+&gt;     alpha = 0.05
+&gt;     data1 = rnorm(N)
+&gt;     data2 = rnorm(N,mean=0.5)
+&gt;     mean(data1)
+[1] 0.01280888
+&gt;     mean(data2)
+[1] 0.5015766
+&gt;     mean(data1) -  mean(data2)    
+[1] -0.4887677
+&gt;     booted &lt;- sapply(c(1:N), function(i) { 
++           mean( sample(data1,N,replace=TRUE) ) - 
++           mean( sample(data2,N,replace=TRUE)  ) })
+&gt;     mean(booted)
+[1] -0.475228
+&gt;     summary(booted)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-0.93557 -0.58166 -0.48149 -0.47523 -0.35196 -0.04391 
+&gt;     quantile(booted,c(alpha/2,1.0 - alpha/2))
+      2.5%      97.5% 
+-0.7658303 -0.1847355 
+&gt;
+</pre>
+</div>
+</div>
+<div id="outline-container-orgheadline21" class="outline-4">
+<h4 id="orgheadline21"><span class="section-number-4">2.4.3</span> Plot it</h4>
+<div class="outline-text-4" id="text-2-4-3">
+<div class="org-src-container">
+
+<pre class="src src-R">counts <span style="color: #008b8b;">&lt;-</span> c(100,100,100,500,500,500,1000,1000,10000)
+boots <span style="color: #008b8b;">&lt;-</span> sapply(counts, <span style="color: #a020f0;">function</span>(N) {
+    alpha = 0.05
+    data1 = rnorm(N)
+    data2 = rnorm(N,mean=0.5)
+    mean(data1)
+    mean(data2)
+    mean(data1) -  mean(data2)    
+    booted <span style="color: #008b8b;">&lt;-</span> sapply(c(1:N), <span style="color: #a020f0;">function</span>(i) { mean( sample(data1,N,replace=<span style="color: #228b22;">TRUE</span>) ) - mean( sample(data2,N,replace=<span style="color: #228b22;">TRUE</span>)  ) })
+    print(mean(booted))
+    print(summary(booted))
+    print(N)
+    print(quantile(booted,c(alpha/2,1.0 - alpha/2)))
+    booted
+})
+plot(density(boots[[length(boots)]]),xlim=c(-1,0.25),ylim=c(0,30))
+<span style="color: #a020f0;">for</span> (i <span style="color: #a020f0;">in</span> c(1:length(boots))) {
+    lines(density(boots[[i]]),col=i)
+}
+legend(0,30,counts,pch=1,col=c(1:length(boots)))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline22" class="outline-4">
+<h4 id="orgheadline22"><span class="section-number-4">2.4.4</span> Results</h4>
+<div class="outline-text-4" id="text-2-4-4">
+<pre class="example">
+&gt;     counts &lt;- c(100,100,100,500,500,500,1000,1000,10000)
+&gt;     boots &lt;- sapply(counts, function(N) {
++         alpha = 0.05
++         data1 = rnorm(N)
++         data2 = rnorm(N,mean=0.5)
++         mean(data1)
++         mean(data2)
++         mean(data1) -  mean(data2)    
++         booted &lt;- sapply(c(1:N), function(i) { mean( sample(data1,N,replace=TRUE) ) - mean( sample(data2,N,replace=TRUE)  ) })
++         print(mean(booted))
++         print(summary(booted))
++         print(N)
++         print(quantile(booted,c(alpha/2,1.0 - alpha/2)))
++         booted
++     })
+[1] -0.4917793
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.9578 -0.5718 -0.4916 -0.4918 -0.3826 -0.2077 
+[1] 100
+      2.5%      97.5% 
+-0.8034647 -0.2512316 
+[1] -0.4610482
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.7874 -0.5340 -0.4560 -0.4610 -0.3779 -0.1083 
+[1] 100
+      2.5%      97.5% 
+-0.7157980 -0.2230874 
+[1] -0.7882121
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-1.2104 -0.8786 -0.7984 -0.7882 -0.6770 -0.3673 
+[1] 100
+      2.5%      97.5% 
+-1.0942129 -0.4880081 
+[1] -0.5126469
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.6824 -0.5531 -0.5115 -0.5126 -0.4705 -0.3081 
+[1] 500
+      2.5%      97.5% 
+-0.6373032 -0.3899576 
+[1] -0.4067484
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.5898 -0.4521 -0.4028 -0.4067 -0.3628 -0.1931 
+[1] 500
+      2.5%      97.5% 
+-0.5408313 -0.2826443 
+[1] -0.4975045
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.6779 -0.5429 -0.4981 -0.4975 -0.4518 -0.3217 
+[1] 500
+      2.5%      97.5% 
+-0.6297027 -0.3722989 
+[1] -0.5537908
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.7010 -0.5827 -0.5536 -0.5538 -0.5249 -0.4185 
+[1] 1000
+      2.5%      97.5% 
+-0.6400824 -0.4657624 
+[1] -0.4787345
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.6403 -0.5102 -0.4800 -0.4787 -0.4471 -0.3218 
+[1] 1000
+      2.5%      97.5% 
+-0.5663714 -0.3973088 
+[1] -0.4844369
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.5446 -0.4942 -0.4845 -0.4844 -0.4746 -0.4322 
+[1] 10000
+      2.5%      97.5% 
+-0.5119642 -0.4562765 
+&gt;     plot(density(boots[[length(boots)]]),xlim=c(-1,0.25),ylim=c(0,30))
+&gt;     for (i in c(1:length(boots))) {
++         lines(density(boots[[i]]),col=i)
++     }
+&gt;     legend(0,30,counts,pch=1,col=c(1:length(boots)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline26" class="outline-3">
+<h3 id="orgheadline26"><span class="section-number-3">2.5</span> Difference of X?</h3>
+<div class="outline-text-3" id="text-2-5">
+<p>
+We don't have to use averages.
+We can use medians or whatever other statistic you like
+</p>
+</div>
+<div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24"><span class="section-number-4">2.5.1</span> R code for difference of skews</h4>
+<div class="outline-text-4" id="text-2-5-1">
+<div class="org-src-container">
+
+<pre class="src src-R"><span style="color: #b22222;"># </span><span style="color: #b22222;">difference of skews</span>
+<span style="color: #b22222;"># </span><span style="color: #b22222;">install.packages("moments")</span>
+<span style="color: #008b8b;">library</span>(moments)
+N=100
+alpha = 0.05
+data1 = rnorm(N)
+data2 = rnorm(N,mean=0.5)
+skewness(data1)
+skewness(data2)
+skewness(data1) -  skewness(data2)    
+booted <span style="color: #008b8b;">&lt;-</span> sapply(c(1:N), <span style="color: #a020f0;">function</span>(i) { skewness( sample(data1,N,replace=<span style="color: #228b22;">TRUE</span>) ) - skewness( sample(data2,N,replace=<span style="color: #228b22;">TRUE</span>)  ) })
+mean(booted)
+summary(booted)
+quantile(booted,c(alpha/2,1.0 - alpha/2))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline25" class="outline-4">
+<h4 id="orgheadline25"><span class="section-number-4">2.5.2</span> Results</h4>
+<div class="outline-text-4" id="text-2-5-2">
+<pre class="example">
+&gt;     # difference of skews
+&gt;     # install.packages("moments")
+&gt;     library(moments)
+&gt;     N=100
+&gt;     alpha = 0.05
+&gt;     data1 = rnorm(N)
+&gt;     data2 = rnorm(N,mean=0.5)
+&gt;     skewness(data1)
+[1] 0.02549939
+&gt;     skewness(data2)
+[1] -0.3078095
+&gt;     skewness(data1) -  skewness(data2)    
+[1] 0.3333089
+&gt;     booted &lt;- sapply(c(1:N), function(i) { skewness( sample(data1,N,replace=TRUE) ) - skewness( sample(data2,N,replace=TRUE)  ) })
+&gt;     mean(booted)
+[1] 0.3303109
+&gt;     summary(booted)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.3472  0.1504  0.3054  0.3303  0.5078  0.9485 
+&gt;     quantile(booted,c(alpha/2,1.0 - alpha/2))
+      2.5%      97.5% 
+-0.1355174  0.8306083
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Abram Hindle</p>
+<p class="date">Created: 2019-02-07 Thu 14:33</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

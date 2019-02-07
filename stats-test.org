@@ -1,0 +1,578 @@
+* Statistical Tests
+** P-Values
+   - Can we accept or reject the null hypothesis?
+     - usually choose a threshold
+     - 0.05 is popular
+     - 0.01 is safer
+     - People get uncomfortable when you get values anywhere near
+       there.
+     - P-values are not really comparable. Maybe in magnitude.
+     - Large datasets generally cause pretty clear p-values.
+** T-Test
+   - Student's T Test
+     - Originally used to for ensuring the quality of beer
+       - Not just any beer: Guiness
+     - process comparison
+     - Compare distributions
+     - Student is William Sealy Gosset, Student is a pen name.
+     - Why do we care?
+       - Compare if two generally normally distributions 
+         have equal means?
+       - What if we got lucky and found the means to be the same? 
+         - What is the chance of that?
+       - Can we trust it?
+     - When not to use it:
+       - when the data is not normal.
+*** T-Test in R
+       - in R:
+         #+BEGIN_SRC R
+          t.test(rnorm(100),rnorm(100))
+          t.test(runif(100),rnorm(100))
+          t.test(rnorm(100,1),rnorm(100))
+         #+END_SRC
+         #+BEGIN_EXAMPLE
+            > t.test(rnorm(100),rnorm(100))
+            
+            	Welch Two Sample t-test
+            
+            data:  rnorm(100) and rnorm(100) 
+            t = 0.3034, df = 193.367, p-value = 0.7619
+            alternative hypothesis: true difference in means is not equal to 0 
+            95 percent confidence interval:
+             -0.2330280  0.3177391 
+            sample estimates:
+             mean of x  mean of y 
+            0.07018111 0.02782554 
+            
+            > t.test(runif(100),rnorm(100))
+            
+            	Welch Two Sample t-test
+            
+            data:  runif(100) and rnorm(100) 
+            t = 2.7514, df = 115.295, p-value = 0.006893
+            alternative hypothesis: true difference in means is not equal to 0 
+            95 percent confidence interval:
+             0.08531389 0.52385119 
+            sample estimates:
+            mean of x mean of y 
+            0.4778445 0.1732620 
+            
+            > t.test(rnorm(100,1),rnorm(100))
+            
+            	Welch Two Sample t-test
+            
+            data:  rnorm(100, 1) and rnorm(100) 
+            t = 6.1553, df = 197.077, p-value = 4.116e-09
+            alternative hypothesis: true difference in means is not equal to 0 
+            95 percent confidence interval:
+             0.5696437 1.1067288 
+            sample estimates:
+            mean of x mean of y 
+            0.9432221 0.1050358 
+            
+            > t.test(rnorm(100,1),rnorm(100))
+            
+            	Welch Two Sample t-test
+            
+            data:  rnorm(100, 1) and rnorm(100) 
+            t = 5.6662, df = 195.334, p-value = 5.176e-08
+            alternative hypothesis: true difference in means is not equal to 0 
+            95 percent confidence interval:
+             0.5409887 1.1186414 
+            sample estimates:
+             mean of x  mean of y 
+            0.85294237 0.02312732 
+         #+END_EXAMPLE
+** Wilcoxon
+   - Wilcoxon Test
+     - non-parametric comparison of distributions
+     - It is about rank based agreement
+       - if we look at the distribution by rank how similar is it?
+     - Pairwise comparison
+     - Good for non-normal distributions
+     - A little more strict than t-test
+      
+*** Wilcoxon in R
+          #+BEGIN_EXAMPLE
+          > wilcox.test(rnorm(100),rnorm(100))
+          
+          	Wilcoxon rank sum test with continuity correction
+          
+          data:  rnorm(100) and rnorm(100) 
+          W = 5490, p-value = 0.2317
+          alternative hypothesis: true location shift is not equal to 0 
+          
+          > wilcox.test(runif(100),rnorm(100))
+          
+          	Wilcoxon rank sum test with continuity correction
+          
+          data:  runif(100) and rnorm(100) 
+          W = 6348, p-value = 0.0009931
+          alternative hypothesis: true location shift is not equal to 0 
+          
+          > wilcox.test(rnorm(100,1),rnorm(100))
+          
+          	Wilcoxon rank sum test with continuity correction
+          
+          data:  rnorm(100, 1) and rnorm(100) 
+          W = 7418, p-value = 3.486e-09
+          alternative hypothesis: true location shift is not equal to 0 
+          #+END_EXAMPLE
+** Kolmogorov-Smirnov Tests
+   - Non parametric
+   - good with SE data and data with skew
+   - compares the maximum distance between CDFs
+   - Usually used on continuous data but works on ECDFs.
+   - Very strict
+   - P-values > 0.05 mean they are similar distributions or not
+     different
+*** R
+    #+BEGIN_SRC R
+    ks.test(rnorm(100),rnorm(100))
+    ks.test(runif(100),rnorm(100))
+    ks.test(rnorm(100,1),rnorm(100))
+    #+END_SRC R
+**** R Output
+         #+BEGIN_EXAMPLE
+         > ks.test(rnorm(100),rnorm(100))
+         
+         	Two-sample Kolmogorov-Smirnov test
+         
+         data:  rnorm(100) and rnorm(100) 
+         D = 0.17, p-value = 0.1111
+         alternative hypothesis: two-sided 
+         
+         > ks.test(runif(100),rnorm(100))
+         
+         	Two-sample Kolmogorov-Smirnov test
+         
+         data:  runif(100) and rnorm(100) 
+         D = 0.52, p-value = 3.612e-12
+         alternative hypothesis: two-sided 
+         
+         > ks.test(rnorm(100,1),rnorm(100))
+         
+         	Two-sample Kolmogorov-Smirnov test
+         
+         data:  rnorm(100, 1) and rnorm(100) 
+         D = 0.46, p-value = 1.292e-09
+         alternative hypothesis: two-sided 
+         #+END_EXAMPLE
+** X^2 Test
+   - Good for non-parametric distributions
+   - Good for counts
+   - You need to bin your data first
+   - it's input is a distribution
+   - watch it, the input is a distribution
+   - Not reliable on continuous values because you need to bin values
+*** R
+    #+BEGIN_EXAMPLE
+    > chisq.test(c(10,10,10,30),p=c(20,20,20,30),rescale.p=TRUE)
+    
+    	Chi-squared test for given probabilities
+    
+    data:  c(10, 10, 10, 30)
+    X-squared = 7.5, df = 3, p-value = 0.05756
+    
+    > chisq.test(c(10,10,10,30),p=c(4,5,6,7),rescale.p=TRUE)
+    
+    	Chi-squared test for given probabilities
+    
+    data:  c(10, 10, 10, 30)
+    X-squared = 9.754, df = 3, p-value = 0.02078
+    
+    > chisq.test(c(10,10,10,30),p=c(11,11,11,31),rescale.p=TRUE)
+    
+    	Chi-squared test for given probabilities
+    
+    data:  c(10, 10, 10, 30)
+    X-squared = 0.058651, df = 3, p-value = 0.9963
+    
+    > chisq.test(c(10,10,10,30),p=c(0,11,11,0),rescale.p=TRUE) # zeros are bad
+    
+    	Chi-squared test for given probabilities
+    
+    data:  c(10, 10, 10, 30)
+    X-squared = Inf, df = 3, p-value < 2.2e-16
+    
+    Warning message:
+    In chisq.test(c(10, 10, 10, 30), p = c(0, 11, 11, 0), rescale.p = TRUE) :
+      Chi-squared approximation may be incorrect
+    > 
+    > south <- c(10,20,30,40)
+    > north <- c(5,30,30,40)
+    > nstab <- as.table(rbind(south,north))
+    > chisq.test(nstab)
+    
+    	Pearson's Chi-squared test
+    
+    data:  nstab
+    X-squared = 3.5468, df = 3, p-value = 0.3147
+    
+    > south <- c(10,20,30,40)
+    > north <- c(90,30,30,40)
+    > nstab <- as.table(rbind(south,north))
+    > chisq.test(nstab)
+    
+    	Pearson's Chi-squared test
+    
+    data:  nstab
+    X-squared = 42.126, df = 3, p-value = 3.772e-09
+        > 
+    > stbdtypes <- c("Source","Test","Build","Doc")
+    > maint     <- c("Adaptive","Perfective","Corrective")
+    > stbds <- stbdtypes[runif(100)*4 + 1]
+    > maints <- maint[runif(100)*3 + 1]
+    > head(stbds)
+    [1] "Build"  "Build"  "Test"   "Source" "Test"   "Doc"   
+    > head(maints)
+    [1] "Adaptive"   "Corrective" "Perfective" "Adaptive"   "Adaptive"  
+    [6] "Corrective"
+    > st <- table(stbds,maints)
+    > st
+            maints
+    stbds    Adaptive Corrective Perfective
+      Build        11          8          3
+      Doc           5         11         13
+      Source        7         11          9
+      Test          9          5          8
+    > chisq.test(st)
+    
+    	Pearson's Chi-squared test
+    
+    data:  st
+    X-squared = 10.148, df = 6, p-value = 0.1186
+    
+    > st2 <- t(cbind(st[,"Adaptive"],st[,"Corrective"]))
+    > st2
+         Build Doc Source Test
+    [1,]    11   5      7    9
+    [2,]     8  11     11    5
+    > chisq.test(st2)
+    
+    	Pearson's Chi-squared test
+    
+    data:  st2
+    X-squared = 4.6304, df = 3, p-value = 0.201
+    
+    > # example where we make a table with junk results
+    > st3 <- t(cbind(st[,"Adaptive"],max(5,round(st[,"Corrective"]+10*rnorm(4)))))
+    > st3
+         Build Doc Source Test
+    [1,]    11   5      7    9
+    [2,]    11  11     11   11
+    > chisq.test(st3)
+    
+    	Pearson's Chi-squared test
+    
+    data:  st3
+    X-squared = 1.4811, df = 3, p-value = 0.6866
+    #+END_EXAMPLE
+
+* Bootstrapping and Confidence Intervals
+** Confidence intervals
+   - Confidence intervals tell us where we expect values to be.
+   - For instance the 95% confidence interval of the mean of our
+     sample is [0.5,1.5]. 
+   - That would mean that in 95% of the cases derived from the
+     population that we expect the mean to between 0.5 and 1.5.
+   - The 99% confidence interval might be wider: [0.3,1.7]
+     - That means 99% of the mean estimates will be in that range.
+     - Higher confidence
+     - Wider range of the statistic.
+   - It gives us some idea of a range of values from the statistic.
+   - Given a range of statistics if we order them and clip off the bottom alpha/2 and top alpha/2 values we 
+     get the remaining confidence interval.
+     - 95% has an alpha of 5% so clip the top 2.5% and bottom 2.5% off and look at min and max, that's
+       our confidence interval.
+*** Are 2 distributions similar?
+    - Often we can use confidence intervals of the difference of means
+      to determine if something is statistically significantly
+      different or similar.
+    - Instead of just generating a p-value we can under the range.
+    - if the 95% confidence interval of mean(x) - mean(y) does not
+      cross 0 it suggests that the distributions are significantly different.
+      - e.g. 95% CI of [-0.5,-0.1] implies that 95% of the time
+        difference of means between x and y is -0.5 to -0.1.
+        - statistically significant difference!
+      - e.g. 95% CI of [0.1,0.5] implies that 95% of the time
+        difference of means between x and y is 0.1 to 0.5
+        - statistically significant difference!
+      - e.g. 95% CI of [-0.5,0.5] implies that 95% of the time
+        difference of means between x and y is -0.5 to 0.5
+        - not a statistically significant difference!
+        - the interval overlaps 0
+*** How do we calculate?
+    - Informal -- we just estimate
+    - Direct calculation -- for parametric statistics there are parametric methods of calculating a CI
+    - Bootstrapping! Use a computer and sampling to abuse stats and
+      produce a distribution of statistics!
+      - we deal with non-parametric data so we like this one
+** Bootstrapping
+  - https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+  - Bootstrapping is sampling a lot.
+    - massive amounts of random sampling without replacement of a sample
+  - What if the best information we have is the current sample?
+  - Boostrapping lets talk about statistics about statistics
+  - We can build confidence intervals with bootstrapping.
+** Bootstrapping a mean example
+  - we sampled 100 elements
+    - we calculate 1 mean
+    - is this good enough?
+    - what if 1 big value is messing everything up?
+    - why don't we sample 100 elements 100 times from the 100 elements.
+      - some of the outliers won't appear in all of the samples
+      - we now can calculate the mean of each of the samples
+      - we can now see the distribution of means
+        - its location
+        - its shape
+      - fundamentally we are more confident about the expected mean
+      - We have a distribution now.
+        - so what?
+        - take the mean again? Sure whatever.
+        - Why not the confidence interval?
+        - R quantile will sort and clip for us
+        - just return the min and max of the middle X % of the distribution
+*** R code
+    #+BEGIN_SRC R
+    N=100
+    alpha = 0.05
+    data = rnorm(N)
+    mean(data)
+    mean(sample(data,N,replace=TRUE))
+    booted <- sapply(c(1:N), function(i) { mean(sample(data,N,replace=TRUE)) })
+    mean(booted)
+    summary(booted)
+    quantile(booted,c(alpha/2,1.0 - alpha/2))
+    #+END_SRC R
+
+    #+RESULTS:
+    | -0.0943985543925813 |
+    |   0.247765366599378 |
+
+*** R Run
+#+BEGIN_EXAMPLE
+>     N=100
+>     alpha = 0.05
+>     data = rnorm(N)
+>     mean(data)
+[1] 0.1086147
+>     mean(sample(data,N,replace=TRUE))
+[1] -0.0537734
+>     booted <- sapply(c(1:N), function(i) { mean(sample(data,N,replace=TRUE)) })
+>     mean(booted)
+[1] 0.09648877
+>     summary(booted)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-0.08934  0.02356  0.08938  0.09649  0.16576  0.35589 
+>     quantile(booted,c(alpha/2,1.0 - alpha/2))
+      2.5%      97.5% 
+-0.0690190  0.2792187 
+> 
+#+END_EXAMPLE
+** Difference of means
+  - we sampled 100 elements from each distribution (2)
+    - we calculate  mean(d1) - means(d2)
+    - is this good enough?
+    - what if 1 big value is messing everything up?
+    - why don't we sample 100 elements 100 times from the each distribution of 100 elements.
+      - we now can calculate the mean difference between each of these samples
+      - we can now see the distribution of difference means
+        - its location
+        - its shape
+      - fundamentally we are more confident about the expected mean
+      - We have a distribution now.
+        - so what?
+        - take the mean again? Sure whatever.
+        - Why not the confidence interval?
+        - R quantile will sort and clip for us
+        - just return the min and max of the middle X % of the distribution
+   
+*** R code
+#+BEGIN_SRC R
+    N=100
+    alpha = 0.05
+    data1 = rnorm(N)
+    data2 = rnorm(N,mean=0.5)
+    mean(data1)
+    mean(data2)
+    mean(data1) -  mean(data2)    
+    booted <- sapply(c(1:N), function(i) { 
+          mean( sample(data1,N,replace=TRUE) ) - 
+          mean( sample(data2,N,replace=TRUE)  ) })
+    mean(booted)
+    summary(booted)
+    quantile(booted,c(alpha/2,1.0 - alpha/2))
+#+END_SRC
+*** R Run
+#+BEGIN_EXAMPLE
+>     N=100
+>     alpha = 0.05
+>     data1 = rnorm(N)
+>     data2 = rnorm(N,mean=0.5)
+>     mean(data1)
+[1] 0.01280888
+>     mean(data2)
+[1] 0.5015766
+>     mean(data1) -  mean(data2)    
+[1] -0.4887677
+>     booted <- sapply(c(1:N), function(i) { 
++           mean( sample(data1,N,replace=TRUE) ) - 
++           mean( sample(data2,N,replace=TRUE)  ) })
+>     mean(booted)
+[1] -0.475228
+>     summary(booted)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-0.93557 -0.58166 -0.48149 -0.47523 -0.35196 -0.04391 
+>     quantile(booted,c(alpha/2,1.0 - alpha/2))
+      2.5%      97.5% 
+-0.7658303 -0.1847355 
+> 
+#+END_EXAMPLE
+*** Plot it
+    #+BEGIN_SRC R
+    counts <- c(100,100,100,500,500,500,1000,1000,10000)
+    boots <- sapply(counts, function(N) {
+        alpha = 0.05
+        data1 = rnorm(N)
+        data2 = rnorm(N,mean=0.5)
+        mean(data1)
+        mean(data2)
+        mean(data1) -  mean(data2)    
+        booted <- sapply(c(1:N), function(i) { mean( sample(data1,N,replace=TRUE) ) - mean( sample(data2,N,replace=TRUE)  ) })
+        print(mean(booted))
+        print(summary(booted))
+        print(N)
+        print(quantile(booted,c(alpha/2,1.0 - alpha/2)))
+        booted
+    })
+    plot(density(boots[[length(boots)]]),xlim=c(-1,0.25),ylim=c(0,30))
+    for (i in c(1:length(boots))) {
+        lines(density(boots[[i]]),col=i)
+    }
+    legend(0,30,counts,pch=1,col=c(1:length(boots)))
+    #+END_SRC
+*** Results
+#+BEGIN_EXAMPLE
+>     counts <- c(100,100,100,500,500,500,1000,1000,10000)
+>     boots <- sapply(counts, function(N) {
++         alpha = 0.05
++         data1 = rnorm(N)
++         data2 = rnorm(N,mean=0.5)
++         mean(data1)
++         mean(data2)
++         mean(data1) -  mean(data2)    
++         booted <- sapply(c(1:N), function(i) { mean( sample(data1,N,replace=TRUE) ) - mean( sample(data2,N,replace=TRUE)  ) })
++         print(mean(booted))
++         print(summary(booted))
++         print(N)
++         print(quantile(booted,c(alpha/2,1.0 - alpha/2)))
++         booted
++     })
+[1] -0.4917793
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.9578 -0.5718 -0.4916 -0.4918 -0.3826 -0.2077 
+[1] 100
+      2.5%      97.5% 
+-0.8034647 -0.2512316 
+[1] -0.4610482
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.7874 -0.5340 -0.4560 -0.4610 -0.3779 -0.1083 
+[1] 100
+      2.5%      97.5% 
+-0.7157980 -0.2230874 
+[1] -0.7882121
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-1.2104 -0.8786 -0.7984 -0.7882 -0.6770 -0.3673 
+[1] 100
+      2.5%      97.5% 
+-1.0942129 -0.4880081 
+[1] -0.5126469
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.6824 -0.5531 -0.5115 -0.5126 -0.4705 -0.3081 
+[1] 500
+      2.5%      97.5% 
+-0.6373032 -0.3899576 
+[1] -0.4067484
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.5898 -0.4521 -0.4028 -0.4067 -0.3628 -0.1931 
+[1] 500
+      2.5%      97.5% 
+-0.5408313 -0.2826443 
+[1] -0.4975045
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.6779 -0.5429 -0.4981 -0.4975 -0.4518 -0.3217 
+[1] 500
+      2.5%      97.5% 
+-0.6297027 -0.3722989 
+[1] -0.5537908
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.7010 -0.5827 -0.5536 -0.5538 -0.5249 -0.4185 
+[1] 1000
+      2.5%      97.5% 
+-0.6400824 -0.4657624 
+[1] -0.4787345
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.6403 -0.5102 -0.4800 -0.4787 -0.4471 -0.3218 
+[1] 1000
+      2.5%      97.5% 
+-0.5663714 -0.3973088 
+[1] -0.4844369
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.5446 -0.4942 -0.4845 -0.4844 -0.4746 -0.4322 
+[1] 10000
+      2.5%      97.5% 
+-0.5119642 -0.4562765 
+>     plot(density(boots[[length(boots)]]),xlim=c(-1,0.25),ylim=c(0,30))
+>     for (i in c(1:length(boots))) {
++         lines(density(boots[[i]]),col=i)
++     }
+>     legend(0,30,counts,pch=1,col=c(1:length(boots)))
+
+#+END_EXAMPLE
+
+** Difference of X?
+   We don't have to use averages.
+   We can use medians or whatever other statistic you like
+*** R code for difference of skews
+#+BEGIN_SRC R
+    # difference of skews
+    # install.packages("moments")
+    library(moments)
+    N=100
+    alpha = 0.05
+    data1 = rnorm(N)
+    data2 = rnorm(N,mean=0.5)
+    skewness(data1)
+    skewness(data2)
+    skewness(data1) -  skewness(data2)    
+    booted <- sapply(c(1:N), function(i) { skewness( sample(data1,N,replace=TRUE) ) - skewness( sample(data2,N,replace=TRUE)  ) })
+    mean(booted)
+    summary(booted)
+    quantile(booted,c(alpha/2,1.0 - alpha/2))
+#+END_SRC
+*** Results
+#+BEGIN_EXAMPLE
+>     # difference of skews
+>     # install.packages("moments")
+>     library(moments)
+>     N=100
+>     alpha = 0.05
+>     data1 = rnorm(N)
+>     data2 = rnorm(N,mean=0.5)
+>     skewness(data1)
+[1] 0.02549939
+>     skewness(data2)
+[1] -0.3078095
+>     skewness(data1) -  skewness(data2)    
+[1] 0.3333089
+>     booted <- sapply(c(1:N), function(i) { skewness( sample(data1,N,replace=TRUE) ) - skewness( sample(data2,N,replace=TRUE)  ) })
+>     mean(booted)
+[1] 0.3303109
+>     summary(booted)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.3472  0.1504  0.3054  0.3303  0.5078  0.9485 
+>     quantile(booted,c(alpha/2,1.0 - alpha/2))
+      2.5%      97.5% 
+-0.1355174  0.8306083 
+#+END_EXAMPLE

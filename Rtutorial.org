@@ -1,0 +1,28 @@
+* R Tutorial
+** Start R
+   - use R Studio, ESS Mode in Emacs, or just R in a terminal
+     - R
+     - r-studio http://www.rstudio.com/ide/download/desktop
+     - apt-get install 
+** Basics in R
+   - x <- 1 # assign 1 to x
+   - square <- function(x) {  x * x } # square x
+   - x <- 1 # assign 1 to x
+   - square <- function(x) {  x * x } # square x
+   - square(10) # 100
+   - # comment
+** Vector
+   - c(1:10) # vector for 1 to 10
+   - 1:10 # vector of 1 to 10
+   - c(1:10,1:10) # vector of 1 to 10, 1 to 10
+   - x <- c(1:10)
+   - x
+** Random numbers
+   - runif - random uniform numbers
+   - rnorm - random normals
+** plots
+*** Scatterplots
+   
+   
+
+     

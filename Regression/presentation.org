@@ -1,0 +1,166 @@
+#+TITLE:     Regression Analysis: Telling Relationships
+#+AUTHOR:    Abram Hindle
+#+EMAIL:     abram.hindle@ualberta.ca
+#+DATE:      2012-02-14 Tue
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+
+#+startup: oddeven
+
+#+startup: beamer
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [bigger]
+#+latex_header: \mode<beamer>{\usetheme{Madrid}}
+#+BEAMER_FRAME_LEVEL: 2
+
+#+COLUMNS: %20ITEM %13BEAMER_env(Env) %6BEAMER_envargs(Args) %4BEAMER_col(Col) %7BEAMER_extra(Extra)
+
+* Introduction
+** What is regression analysis?
+   - relating dependant and independent variables
+   - relating observations and to inputs
+   - inferring structure, causality and functions
+** Dependant and Independent
+   - $y = b + a x$ where ($a$ and $b$ are constants
+     - $y$ is the response (measured)
+     - $x$ is the input or variable under scrutiny
+   - Independent variables are variables that we control or are
+     controlling for (like $x$)
+   - Dependant variables are variables who's outcome might be
+     dependant on other variables (like our independent variable)
+     (like $y$)
+   - Essentially we want to see the response in $y$ that is caused by
+     $x$
+     - This might only be a correlation
+       - Remember correlation != causation
+** Linear Regression
+   - We want to investigate the linear effect of independent variables
+     on a dependent variable using a model that is a linear
+     combination of independent variables.
+   - The model:
+     - $y = b + a_1 x_1 + a_2 x_2 + ... + a_n x_n$
+       - Does anyone smell a matrix?
+         - Essentially you're trying to solve an inexact linear system
+           with the least amount of error
+           
+* Examples
+
+** R code
+#+name: rexample
+#+begin_src r :results output :exports both
+data <- c()
+data$x <- c(1:10)
+data$y <- runif(10) + 2*(data$x + rnorm(10))
+lmfit <- lm( y ~ x , data = data)
+plot(data)
+lines(lmfit$fitted.values)
+summary(lmfit)
+#+end_src
+
+** The output
+#+results: rexrample
+#+begin_example
+> summary(lmfit)
+Call:
+lm(formula = y ~ x, data = data)
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.50315 -0.75578  0.04244  1.10641  1.81079 
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   1.7481     0.9841   1.776    0.114    
+x             1.7450     0.1586  11.003 4.14e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+Residual standard error: 1.441 on 8 degrees of freedom
+Multiple R-squared: 0.938,	Adjusted R-squared: 0.9303 
+F-statistic: 121.1 on 1 and 8 DF,  p-value: 4.14e-06 
+#+end_example
+
+
+** Fitted Line
+   - The data + model
+   #+ATTR_LaTeX: height=0.9\textheight
+   [[./simple-example.pdf]]
+
+
+* Evaluation
+** $R^2$
+   - Explained variance
+     - "How much variance is explained by the model"   
+     - 1.0 completely explained
+     - 0.5 50\% explained
+     - 0.1 10\% explained
+   - You want adjusted R-Squared
+   - It is a comparison of error to the result
+    - Not available by all tests, and not always meaningful
+** AIC - Akaike information criterion
+   - Goodness of fit test
+   - Lower is better
+   - \texttt{AIC} in R
+   - Information theoretic suggestion of what is lost by the model
+** VIF - Variance Inflation Factor
+   - Goodness of fit test
+   - How much variance is caused by colinearity
+     - If values are correlated they can be colinear.
+   - in \texttt{library(car)} in R
+   - \texttt{vif} in R
+
+* Other uses
+
+** Other uses for regression
+   - Estimate functions
+   - Explore the relationships between variables
+     - Ignore the results and focus on the stability of the
+       relationship by watching how stable a variable is in multiple
+       models.
+
+
+e
+
+** Example 3
+
+#+begin_example
+> lmfit <- lm( y ~ x + z + u, data = data)
+> summary(lmfit)
+Call:
+lm(formula = y ~ x + z + u, data = data)
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.94596 -0.41373 -0.06119  0.77782  1.83880 
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   1.1254     1.4409   0.781    0.464    
+x             2.1418     0.1775  12.068 1.97e-05 ***
+z            -2.5840     1.8109  -1.427    0.204    
+u             0.3978     0.4367   0.911    0.398    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+Residual standard error: 1.606 on 6 degrees of freedom
+Multiple R-squared: 0.9605,	Adjusted R-squared: 0.9408 
+F-statistic: 48.65 on 3 and 6 DF,  p-value: 0.0001327 
+> AIC(lmfit)
+[1] 42.74212
+> vif(lmfit)
+       x        z        u 
+1.007877 1.036088 1.034820 
+#+end_example
+
+
+* Other uses
+** Another use:
+   - Correlation is between 2 variables
+   - Regression can be used to show multivariate relationships between
+     variables
+   - You don't need to have great results either if you're trying to
+     suggest a relationship.
+   - Show the models decrease in AIC and VIF
+
