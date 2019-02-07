@@ -1,0 +1,49 @@
+* Evaluation Measures
+** Matrix of classification
+   - True Positives (TP) - An action or label is properly applied
+     - A classifier for buggy code says buggy code is buggy
+   - True negative (TN)  - An action or label is properly not applied
+     - A classifier for buggy code says *NOT* buggy code is *NOT* buggy
+   - False positive (FP)  - An action or label is improperly applied
+     - A classifier for buggy code says NOT buggy code *IS* buggy
+   - False negative (FN)  - An action or label is improperly NOT applied 
+     - A classifier for buggy code says buggy code *IS NOT* buggy
+** Accuracy
+   - Given X things how often is out automated tool right?
+   - E.g. given 100 samples of not working source code
+     - how good is our tool at fixing the source code?
+   - Answer: correct / total 
+   - TP / (TP+TN+FN+FP)
+   - TP / Everything
+   - Bad in situations where 90% of the dataset is positive
+     - you just guess positive and you get 90%!
+   - If 90% of your data is 1 class you want better than 90%
+     accuracy
+   - How many classifications were correct?
+   - Bad for class imbalance
+** Kappa
+   - Cohen's Kappa
+   - like correlation
+   - agreement between classifier and actual data
+   - Very good for class imbalance
+   - Check it out on Wikipedia https://en.wikipedia.org/wiki/Cohen's_kappa
+** Precision
+   - Of what was evaluated or returned what are relevant?
+     - e.g. of the buggy code snippets returned how many are actually buggy?
+   - When I give you a positive, how right am I?
+   - TP / (TP + FP)
+   - Ignores the fact that I missed lots of buggy code.
+** Recall
+   - Of what was evaluated or returned did I at least return most of what was relevant?
+     - e.g. of the buggy code snippets returned did I return MOST of them
+   - Can only use when you know the population size
+   - When I return results do I return most of relevant results?
+   - TP / (TP + FN)
+** F-1 Measure
+   - Can I take precision and recall and balance them?
+   - F1 = 2 * Precision * Recall / ( Precision +  Recall)
+     - geometric mean of precision and recall
+** More resources
+   - The wikipedia page is actually great
+     - https://en.wikipedia.org/wiki/Precision_and_recall
+     - https://en.wikipedia.org/wiki/Cohen's_kappa
