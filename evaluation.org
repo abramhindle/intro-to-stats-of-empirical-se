@@ -9,7 +9,7 @@
    - False negative (FN)  - An action or label is improperly NOT applied 
      - A classifier for buggy code says buggy code *IS NOT* buggy
 ** Accuracy
-   - Given X things how often is out automated tool right?
+   - Given X things how often is our automated tool right?
    - E.g. given 100 samples of not working source code
      - how good is our tool at fixing the source code?
    - Answer: correct / total 
