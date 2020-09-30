@@ -30,6 +30,7 @@
           t.test(runif(100),rnorm(100))
           t.test(rnorm(100,1),rnorm(100))
          #+END_SRC
+
          #+BEGIN_EXAMPLE
             > t.test(rnorm(100),rnorm(100))
             
