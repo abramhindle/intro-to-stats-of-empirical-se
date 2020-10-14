@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# y = a + b_0 * x_0 + b_1*x_1 + ... + b_n*x_n
+
 trueb = np.matrix([[3],[1],[2],[3]])
+# 3 + 1*x_0 + 2*x_1 + 3*x_2
 ivars =  3
 n = 100
 X = np.ones((n,ivars+1))
@@ -27,7 +30,7 @@ seaborn.pairplot(dfX,hue='ry')
 plt.show()
 
 print("Now we want to OLS it!")
-print("(X' X)^-1 * (X' * Y)")
+print("B = (X' X)^-1 * (X' * Y)")
 Xt = np.transpose(X)
 B = np.matmul( np.linalg.inv(np.matmul(Xt,X)), np.matmul(Xt,Y))
 print("B.shape", B.shape)
@@ -86,7 +89,7 @@ def predictOLS(data,B):
     X = dataToX(data)
     return np.matmul(X,B)    
 
-noise = 2 * np.random.random((n,1))
+noise = 5 * np.random.random((n,1))
 print("calculate Y based on coeffecients of trueb and noise")
 data = np.random.random((n,ivars))
 X = dataToX(data)
