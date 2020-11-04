@@ -1,0 +1,545 @@
+#+TITLE: Survival Analysis
+#+PROPERTY: header-args:C             :exports both :eval yes :flags -std=c99 -pedantic -Wall -Wextra -ftrapv -ggdb3 :eval yes :results value verbatim
+#+PROPERTY: header-args:sh            :exports both :eval yes :results value verbatim
+#+PROPERTY: header-args:R             :exports both :eval yes :results output :session 
+#+PROPERTY: header-args:shell         :exports both :eval yes :results value verbatim
+
+* Survival Analysis
+** Copyright Statement
+
+If you are in CMPUT201 at UAlberta this code is released in the public
+domain to you.
+
+Otherwise it is (c) 2020 Abram Hindle
+
+*** License
+
+    Survival Analysis
+    Copyright (C) 2020 Abram Hindle
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+*** Alternative version
+
+ Checkout the .txt, the .pdf, and the .html version
+
+*** Init ORG-MODE
+
+#+BEGIN_SRC elisp
+;; I need this for org-mode to work well
+;; If we have a new org-mode use ob-shell
+;; otherwise use ob-sh --- but not both!
+(if (require 'ob-shell nil 'noerror)
+  (progn
+    (org-babel-do-load-languages 'org-babel-load-languages '((shell . t))))
+  (progn
+    (require 'ob-sh)
+    (org-babel-do-load-languages 'org-babel-load-languages '((sh . t)))))
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((R . t)))
+(org-babel-do-load-languages 'org-babel-load-languages '((C . t)))
+(org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
+(setq org-src-fontify-natively t)
+(setq org-confirm-babel-evaluate nil) ;; danger!
+(custom-set-faces
+ '(org-block ((t (:inherit shadow :foreground "black"))))
+ '(org-code ((t (:inherit shadow :foreground "black")))))
+(setq org-startup-with-inline-images t)
+(setq org-redisplay-inline-images t)
+(add-hook 'org-babel-after-execute-hook 'org-display-inline-images)   
+(add-hook 'org-mode-hook 'org-display-inline-images)   
+#+END_SRC
+
+#+RESULTS:
+| org-display-inline-images | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | #[0 \300\301\302\303\304$\207 [add-hook before-save-hook org-encrypt-entries nil t] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | turn-on-font-lock |
+
+
+*** Org export
+#+BEGIN_SRC elisp
+(org-html-export-to-html)
+(org-latex-export-to-pdf)
+(org-ascii-export-to-ascii)
+#+END_SRC
+
+#+RESULTS:
+: presentation.txt
+
+
+*** Org Template
+
+#+BEGIN_SRC R 
+summary(runif(100))
+#+END_SRC
+
+#+RESULTS:
+:     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+: 0.004994 0.242160 0.513268 0.494059 0.750613 0.975153
+
+#+BEGIN_SRC R :results output graphics :file test.png
+  library("ggplot2")
+  ggplot(iris, aes(x = Sepal.Width, y = Sepal.Length, color = Species)) +
+  geom_point()
+#+END_SRC
+
+#+RESULTS:
+[[file:test.png]]
+
+
+
+** Survival Analysis
+   https://github.com/therneau/survival
+   https://cran.r-project.org/web/packages/survival/index.html
+   https://cran.r-project.org/web/packages/survival/survival.pdf
+*** Survival Data
+
+Let's try it out from the R package
+
+Let's look at what is expected from survival data:
+
+#+BEGIN_SRC R 
+library(survival)
+aml
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+   time status             x
+1     9      1    Maintained
+2    13      1    Maintained
+3    13      0    Maintained
+4    18      1    Maintained
+5    23      1    Maintained
+6    28      0    Maintained
+7    31      1    Maintained
+8    34      1    Maintained
+9    45      0    Maintained
+10   48      1    Maintained
+11  161      0    Maintained
+12    5      1 Nonmaintained
+13    5      1 Nonmaintained
+14    8      1 Nonmaintained
+15    8      1 Nonmaintained
+16   12      1 Nonmaintained
+17   16      0 Nonmaintained
+18   23      1 Nonmaintained
+19   27      1 Nonmaintained
+20   30      1 Nonmaintained
+21   33      1 Nonmaintained
+22   43      1 Nonmaintained
+23   45      1 Nonmaintained
+#+end_example
+
+Time is when an event occurs. Status is alive or dead. x is the factor.
+
+This is Leukemia survival data.
+
+*** Surv object 
+
+survfit will fit a model to a survival curve. Surv makes such a curve out of 2 variables, time and status.
+
+Status is either censoring or death. 0 for censor often, or 1 for death?
+
+#+BEGIN_SRC R
+maint <- aml[aml$x=="Maintained",]
+Surv(maint$time, maint$status)
+maint[maint$status==0,]
+#+END_SRC
+
+#+RESULTS:
+:  [1]   9   13   13+  18   23   28+  31   34   45+  48  161+
+:    time status          x
+: 3    13      0 Maintained
+: 6    28      0 Maintained
+: 9    45      0 Maintained
+: 11  161      0 Maintained
+
+*** Plotting Surv object
+
+You can plot the curve and the confidence interval
+
+#+BEGIN_SRC R :results output graphics :file Surv.png :width 1200 :height 700
+maint <- aml[aml$x=="Maintained",]
+plot(Surv(maint$time, maint$status))
+#+END_SRC
+
+#+RESULTS:
+[[file:Surv.png]]
+So what does it look like with multiple factors?
+
+#+BEGIN_SRC R :results output graphics :file leukemia.png :width 1200 :height 700
+leukemia.surv <- survfit(Surv(time, status) ~ x, data = aml)
+plot(leukemia.surv, lty = 2:3)
+legend(100, .9, c("Maintenance", "No Maintenance"), lty = 2:3)
+#+END_SRC
+
+#+RESULTS:
+[[file:leukemia.png]]
+
+#+BEGIN_SRC R 
+leukemia.surv <- survfit(Surv(time, status) ~ x, data = aml)
+summary(leukemia.surv)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Call: survfit(formula = Surv(time, status) ~ x, data = aml)
+
+                x=Maintained 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    9     11       1    0.909  0.0867       0.7541        1.000
+   13     10       1    0.818  0.1163       0.6192        1.000
+   18      8       1    0.716  0.1397       0.4884        1.000
+   23      7       1    0.614  0.1526       0.3769        0.999
+   31      5       1    0.491  0.1642       0.2549        0.946
+   34      4       1    0.368  0.1627       0.1549        0.875
+   48      2       1    0.184  0.1535       0.0359        0.944
+
+                x=Nonmaintained 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    5     12       2   0.8333  0.1076       0.6470        1.000
+    8     10       2   0.6667  0.1361       0.4468        0.995
+   12      8       1   0.5833  0.1423       0.3616        0.941
+   23      6       1   0.4861  0.1481       0.2675        0.883
+   27      5       1   0.3889  0.1470       0.1854        0.816
+   30      4       1   0.2917  0.1387       0.1148        0.741
+   33      3       1   0.1944  0.1219       0.0569        0.664
+   43      2       1   0.0972  0.0919       0.0153        0.620
+   45      1       1   0.0000     NaN           NA           NA
+#+end_example
+
+
+*** OK but software engineering?
+
+Your times should be time since the start of the intervention or the
+birth of a bug. If you want to track project lifetime, make it another
+variable. Your record should be if something has quit or if something
+has finished.
+
+#+BEGIN_SRC R
+library(survival)
+bugs <- c()
+# time of bug fix
+bugs$time   <- c(10,10,10,20,20,30,40,50,60,70,80,90,100)
+# bugs$status <- c( 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0,  1)
+bugs <- data.frame(bugs)
+bugs
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+   time
+1    10
+2    10
+3    10
+4    20
+5    20
+6    30
+7    40
+8    50
+9    60
+10   70
+11   80
+12   90
+13  100
+#+end_example
+
+#+BEGIN_SRC R :results output graphics :file Bugs.png :width 1200 :height 700
+plot(Surv(bugs$time))
+#+END_SRC
+
+#+RESULTS:
+[[file:Bugs.png]]
+
+*** What about for a lot more bugs?
+
+We're going to invent a dataset where minor revision bugs last longer.
+
+They are fixed later. Which means they survive longer.
+
+#+BEGIN_SRC R :results output graphics :file RandBugs.png :width 1200 :height 700
+bugs <- c()
+# bug survival
+bugs$time   <- sort(runif(100)*100)
+# longer surviving bugs at the end
+bugs$time   <- c(bugs$time,sort(bugs$time + runif(100)*50))
+# the first half are half minor revisions
+# the second half are mostly minor revision bugs and they last a long time
+bugs$minor  <- c(sample(c(0,1),100,replace=TRUE),sample(c(1),100,replace=TRUE))
+# this is just noise to show what happens with uncorrelated results
+bugs$noise  <- sample(c(0,1),200,replace=TRUE)
+# minor are censored more
+bugs$status <- c(sample(c(1,1,1,0),100,replace=TRUE),sample(c(1,0,0),100,replace=TRUE))
+bugs <- data.frame(bugs)
+# plot(bugs$time[bugs$status==1])
+# plot(bugs$time[bugs$status==0])
+plot(Surv(bugs$time,bugs$status))
+#+END_SRC
+
+#+RESULTS:
+[[file:RandBugs.png]]
+#+BEGIN_SRC R :results output graphics :file SurvFitRandBugs.png :width 1200 :height 700
+plot(survfit(Surv(time,status) ~ factor(minor), data = bugs),lty=c(1:2))
+legend(100, .9, c("Not minor", "Minor"), lty = 1:2)
+#+END_SRC
+
+#+RESULTS:
+[[file:SurvFitRandBugs.png]]
+#+BEGIN_SRC R
+summary(survfit(Surv(time,status) ~ factor(minor), data = bugs))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Call: survfit(formula = Surv(time, status) ~ factor(minor), data = bugs)
+
+                factor(minor)=0 
+  time n.risk n.event survival std.err lower 95% CI upper 95% CI
+  1.02     55       1   0.9818  0.0180      0.94714        1.000
+  1.99     54       1   0.9636  0.0252      0.91541        1.000
+  8.42     53       1   0.9455  0.0306      0.88730        1.000
+ 12.05     51       1   0.9269  0.0352      0.86045        0.999
+ 14.62     49       1   0.9080  0.0392      0.83428        0.988
+ 15.74     48       1   0.8891  0.0427      0.80916        0.977
+ 15.96     47       1   0.8702  0.0458      0.78485        0.965
+ 16.34     46       1   0.8512  0.0486      0.76119        0.952
+ 17.43     45       1   0.8323  0.0510      0.73808        0.939
+ 17.78     44       1   0.8134  0.0533      0.71543        0.925
+ 18.03     43       1   0.7945  0.0553      0.69320        0.911
+ 18.80     42       1   0.7756  0.0571      0.67134        0.896
+ 19.67     41       1   0.7567  0.0588      0.64982        0.881
+ 20.45     40       1   0.7377  0.0603      0.62859        0.866
+ 21.67     39       1   0.7188  0.0616      0.60766        0.850
+ 23.31     38       1   0.6999  0.0628      0.58699        0.835
+ 24.86     36       1   0.6805  0.0640      0.56587        0.818
+ 24.86     35       1   0.6610  0.0651      0.54502        0.802
+ 25.54     34       1   0.6416  0.0660      0.52442        0.785
+ 26.78     33       1   0.6221  0.0668      0.50406        0.768
+ 27.55     31       1   0.6021  0.0676      0.48315        0.750
+ 30.12     28       1   0.5806  0.0685      0.46068        0.732
+ 30.13     27       1   0.5591  0.0693      0.43852        0.713
+ 30.21     26       1   0.5376  0.0699      0.41668        0.694
+ 35.18     25       1   0.5161  0.0703      0.39513        0.674
+ 35.98     23       1   0.4936  0.0707      0.37275        0.654
+ 37.39     22       1   0.4712  0.0710      0.35071        0.633
+ 43.59     21       1   0.4488  0.0711      0.32900        0.612
+ 47.97     19       1   0.4251  0.0711      0.30625        0.590
+ 55.58     17       1   0.4001  0.0712      0.28229        0.567
+ 67.90     14       1   0.3715  0.0716      0.25462        0.542
+ 70.01     13       1   0.3430  0.0716      0.22779        0.516
+ 70.10     12       1   0.3144  0.0711      0.20180        0.490
+ 71.38     11       1   0.2858  0.0702      0.17666        0.462
+ 73.57     10       1   0.2572  0.0687      0.15238        0.434
+ 74.88      9       1   0.2286  0.0668      0.12901        0.405
+ 82.36      8       1   0.2001  0.0642      0.10662        0.375
+ 83.19      7       1   0.1715  0.0611      0.08530        0.345
+ 83.55      6       1   0.1429  0.0572      0.06521        0.313
+ 88.82      5       1   0.1143  0.0524      0.04654        0.281
+ 90.96      4       1   0.0857  0.0465      0.02965        0.248
+ 94.71      2       1   0.0429  0.0382      0.00748        0.246
+ 94.74      1       1   0.0000     NaN           NA           NA
+
+                factor(minor)=1 
+   time n.risk n.event survival std.err lower 95% CI upper 95% CI
+   4.68    145       1   0.9931 0.00687       0.9797        1.000
+   4.73    144       1   0.9862 0.00969       0.9674        1.000
+   5.88    143       1   0.9793 0.01182       0.9564        1.000
+   9.47    141       1   0.9724 0.01363       0.9460        0.999
+  15.54    139       1   0.9654 0.01522       0.9360        0.996
+  16.41    138       1   0.9584 0.01664       0.9263        0.992
+  23.75    132       1   0.9511 0.01803       0.9164        0.987
+  25.71    131       1   0.9439 0.01930       0.9068        0.982
+  27.34    130       1   0.9366 0.02047       0.8973        0.978
+  32.90    128       1   0.9293 0.02158       0.8879        0.973
+  33.05    127       1   0.9220 0.02261       0.8787        0.967
+  33.77    126       1   0.9146 0.02359       0.8696        0.962
+  35.11    123       1   0.9072 0.02454       0.8604        0.957
+  35.31    121       1   0.8997 0.02546       0.8512        0.951
+  35.55    120       1   0.8922 0.02633       0.8421        0.945
+  35.56    119       1   0.8847 0.02715       0.8331        0.940
+  36.76    117       1   0.8772 0.02795       0.8240        0.934
+  38.54    116       1   0.8696 0.02872       0.8151        0.928
+  38.64    114       1   0.8620 0.02946       0.8061        0.922
+  39.35    113       1   0.8543 0.03017       0.7972        0.916
+  41.62    110       1   0.8466 0.03088       0.7882        0.909
+  42.60    108       1   0.8387 0.03157       0.7791        0.903
+  45.76    104       1   0.8307 0.03228       0.7697        0.896
+  45.98    103       1   0.8226 0.03296       0.7605        0.890
+  47.10    101       1   0.8145 0.03363       0.7511        0.883
+  47.67    100       1   0.8063 0.03426       0.7419        0.876
+  48.81     99       1   0.7982 0.03487       0.7327        0.870
+  50.65     94       1   0.7897 0.03552       0.7230        0.862
+  50.82     93       1   0.7812 0.03614       0.7135        0.855
+  51.28     91       1   0.7726 0.03675       0.7038        0.848
+  52.61     90       1   0.7640 0.03733       0.6942        0.841
+  56.78     87       1   0.7552 0.03792       0.6845        0.833
+  56.94     86       1   0.7465 0.03848       0.6747        0.826
+  57.48     84       1   0.7376 0.03903       0.6649        0.818
+  57.57     83       1   0.7287 0.03956       0.6551        0.810
+  57.82     82       1   0.7198 0.04007       0.6454        0.803
+  59.00     81       1   0.7109 0.04054       0.6357        0.795
+  63.82     79       1   0.7019 0.04102       0.6259        0.787
+  64.53     78       1   0.6929 0.04147       0.6162        0.779
+  64.89     77       1   0.6839 0.04189       0.6065        0.771
+  65.25     76       1   0.6749 0.04230       0.5969        0.763
+  66.46     75       1   0.6659 0.04268       0.5873        0.755
+  66.57     74       1   0.6569 0.04304       0.5777        0.747
+  71.78     70       1   0.6475 0.04344       0.5678        0.739
+  76.90     62       1   0.6371 0.04397       0.5565        0.729
+  77.09     61       1   0.6266 0.04448       0.5453        0.720
+  79.15     58       1   0.6158 0.04500       0.5337        0.711
+  79.23     57       1   0.6050 0.04549       0.5221        0.701
+  80.73     56       1   0.5942 0.04594       0.5107        0.691
+  82.54     52       1   0.5828 0.04646       0.4985        0.681
+  83.15     51       1   0.5714 0.04693       0.4864        0.671
+  83.42     50       1   0.5599 0.04737       0.4744        0.661
+  84.00     48       1   0.5483 0.04779       0.4622        0.650
+  85.29     47       1   0.5366 0.04818       0.4500        0.640
+  88.45     43       1   0.5241 0.04865       0.4370        0.629
+  88.90     42       1   0.5117 0.04906       0.4240        0.617
+  90.58     40       1   0.4989 0.04948       0.4107        0.606
+  90.74     39       1   0.4861 0.04983       0.3976        0.594
+  91.96     37       1   0.4729 0.05019       0.3841        0.582
+  94.36     34       1   0.4590 0.05060       0.3698        0.570
+  95.63     32       1   0.4447 0.05102       0.3551        0.557
+  96.75     30       1   0.4299 0.05142       0.3400        0.543
+  97.21     29       1   0.4150 0.05174       0.3251        0.530
+  99.47     27       1   0.3997 0.05206       0.3096        0.516
+ 101.20     26       1   0.3843 0.05228       0.2944        0.502
+ 103.81     23       1   0.3676 0.05261       0.2777        0.487
+ 103.93     22       1   0.3509 0.05280       0.2613        0.471
+ 107.28     17       1   0.3302 0.05358       0.2403        0.454
+ 109.44     15       1   0.3082 0.05434       0.2182        0.435
+ 120.37      9       1   0.2740 0.05810       0.1808        0.415
+ 120.42      8       1   0.2397 0.06009       0.1467        0.392
+ 129.56      4       1   0.1798 0.06874       0.0850        0.380
+ 131.73      3       1   0.1199 0.06704       0.0400        0.359
+ 132.23      2       1   0.0599 0.05403       0.0102        0.351
+#+end_example
+
+Survfit basically calculates confidence intervals of survival at each point
+
+
+*** Cox Proportional-Hazards Model
+
+The PMM for minor should be lower than not minor. Because it is less risk. It lets bugs survive longer.
+
+The PMM for noise should be near 1.
+
+#+BEGIN_SRC R
+fit <- coxph(Surv(time,status) ~ factor(minor) + factor(noise), data = bugs)
+summary(fit,rr.ci=TRUE)
+yates(fit, ~ minor, predict="risk") # hazard ratio
+yates(fit, ~ noise, predict="risk") # hazard ratio
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Call:
+coxph(formula = Surv(time, status) ~ factor(minor) + factor(noise), 
+    data = bugs)
+
+  n= 200, number of events= 117 
+
+                  coef exp(coef) se(coef)      z Pr(>|z|)    
+factor(minor)1 -1.3353    0.2631   0.2058 -6.488  8.7e-11 ***
+factor(noise)1  0.3013    1.3517   0.1892  1.593    0.111    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+               exp(coef) exp(-coef) lower .95 upper .95
+factor(minor)1    0.2631     3.8010    0.1758    0.3938
+factor(noise)1    1.3517     0.7398    0.9329    1.9585
+
+Concordance= 0.642  (se = 0.028 )
+Likelihood ratio test= 38.58  on 2 df,   p=4e-09
+Wald test            = 42.77  on 2 df,   p=5e-10
+Score (logrank) test = 48.48  on 2 df,   p=3e-11
+ factor(minor)     pmm     std               test chisq df        Pr
+             0 2.66201 0.38993      factor(minor) 21.27  1 3.984e-06
+             1 0.70034 0.03760
+ factor(noise)    pmm     std               test chisq df     Pr
+             0 1.0358 0.12565      factor(noise) 2.658  1 0.1031
+             1 1.4001 0.14585
+#+end_example
+
+#+BEGIN_SRC R :results output graphics :file RandBugsCox.png :width 1200 :height 1200
+fit <- coxph(Surv(time,status) ~ factor(minor) + factor(noise), data = bugs)
+par(mfrow=c(3,1))
+plot(cox.zph(fit)[1]) # plot minor
+plot(cox.zph(fit)[2]) # plot noise
+plot(survfit(Surv(time,status) ~ factor(minor), data = bugs),lty=c(1:2))
+legend(100, .9, c("Not minor", "Minor"), lty = 1:2)
+#+END_SRC
+
+#+RESULTS:
+[[file:RandBugsCox.png]]
+*** Pretty Plots with Survminer
+
+A pain to install (use docker?) https://rpkgs.datanovia.com/survminer/
+
+You could install devtools and run:
+
+#+BEGIN_SRC R :eval no
+devtools::install_url("https://github.com/wilkelab/cowplot/archive/0.6.3.zip")
+devtools::install_url("https://github.com/cran/mvtnorm/archive/1.0-8.zip")
+devtools::install_url("https://github.com/kassambara/survminer/archive/v0.4.3.zip")
+#install.packages("survminer")
+#+END_SRC
+
+#+BEGIN_SRC R
+library(survminer)
+#+END_SRC
+
+#+RESULTS:
+: Loading required package: ggplot2
+: Loading required package: ggpubr
+
+#+BEGIN_SRC R :results output graphics :file SurvMinerRandBugsCox.png :width 1600 :height 700
+library(survival)
+library(survminer)
+fit <- survfit(Surv(time,status) ~ factor(minor), data = bugs)
+ggsurvplot(fit, data = bugs)
+#+END_SRC
+
+#+RESULTS:
+[[file:SurvMinerRandBugsCox.png]]
+*** Better
+
+
+#+BEGIN_SRC R :results output graphics :file PrettySurvMinerRandBugsCox.png :width 1600 :height 700
+library(survival)
+library(survminer)
+fit <- survfit(Surv(time,status) ~ factor(minor), data = bugs)
+ggsurvplot(
+  fit, 
+  data = bugs, 
+  size = 1,                 # change line size
+  palette = 
+    c("#E7B800", "#2E9FDF"),# custom color palettes
+  conf.int = TRUE,          # Add confidence interval
+  pval = TRUE,              # Add p-value
+  risk.table = TRUE,        # Add risk table
+  risk.table.col = "strata",# Risk table color by groups
+  legend.labs = 
+    c("Not Minor", "Minor"),    # Change legend labels
+  risk.table.height = 0.25, # Useful to change when you have multiple groups
+  ggtheme = theme_bw()      # Change ggplot2 theme
+)
+#+END_SRC
+
+#+RESULTS:
+[[file:PrettySurvMinerRandBugsCox.png]]
+
+
