@@ -1,0 +1,117 @@
+#+TITLE:     Basic Clustering
+#+AUTHOR:    Abram Hindle
+#+EMAIL:     abram.hindle@ualberta.ca
+#+DATE:      2012-02-28 Tue
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+
+#+startup: oddeven
+
+#+startup: beamer
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [bigger]
+#+latex_header: \mode<beamer>{\usetheme{Madrid}}
+#+BEAMER_FRAME_LEVEL: 2
+
+#+COLUMNS: %20ITEM %13BEAMER_env(Env) %6BEAMER_envargs(Args) %4BEAMER_col(Col) %7BEAMER_extra(Extra)
+
+* Introduction
+** What is cluster analysis?
+   - grouping objects by similar features
+   - often unsupervised analysis of a dataset into "natural" groupings
+   - explorative
+   - See http://en.wikipedia.org/wiki/Cluster_analysis
+** Clustering 
+   - Many different techniques
+     - group by
+       - connectivity
+       - centroids: (the centers of a cluster)
+       - distributions
+       - densities
+       - features
+** Clustering as labelling?
+   - Single label
+     - Hierarchical clustering
+     - K-means
+   - Multilabel
+     - LDA
+     - LSI
+** Hierarchical clustering
+   - show connectivity and distance
+   - partner or pair elements and then cluster these pairs
+   - hierarchical grouping
+   - the plot is called a Dendrogram
+   - The distance metric matters
+   - Distance Metric: Euclidean Distance
+     - $\sqrt \sum_{i=1}^n (p_i - q_i)^2$
+     - $\sqrt p \cdot p$
+** Hierarchical Clustering Dendrogram:
+   #+ATTR_LaTeX: height=0.8\textheight
+   [[./postgresql-author-cluster.pdf]]        
+** R code
+#+name: rexample
+#+begin_src r :results output :exports both
+v <- read.csv("Author_NFRs.csv"); vv <- v[1:18,]
+for (i in 2:17) { vv[,i] <- as.numeric(vv[,i]) }
+tv <- t(vv[,2:8])
+authors <- matrix(tv,nrow=7,
+             dimnames=list(labels(tv)[[1]],vv[,1]))
+pdf("postgresql-author-cluster.pdf")
+hc <- hclust(dist(t(authors)),method="ward")
+plot(hc,sub="Organized into 2 and 6 clusters",
+  xlab="PostgreSQL Authors")
+rect.hclust(hc,k=2,border="black")
+rect.hclust(hc,k=6,border="dimgrey")
+dev.off()
+#+end_src
+** Distance Functions
+   - Magnitude (Size)
+     - Euclidean  $\sqrt p \cdot p$
+     - More so about size in space
+     - Less concerned about membership
+   - Angular (Proportional)
+     - Cosine $1 - \frac{A \cdot B}{\|A\|\|B\|}$
+     - Correlation - $1 - cor(A,B)$
+     - These methods are about content
+     - Popular in IR
+** R code: Pearson Similarity/Distance
+#+name: rexample
+#+begin_src r :results output :exports both
+pdf("oldpostgresql-author-cluster.pdf")
+hc <- hclust(as.dist(1-cor(authors)),method="ward")
+plot(hc,sub="Organized into 2 and 6 clusters",xlab="PostgreSQL Authors")
+rect.hclust(hc,k=2,border="blue")
+rect.hclust(hc,k=6,border="purple")
+dev.off()
+#+end_src
+** Hierarchical Clustering Dendrogram: Pearson Distance
+   #+ATTR_LaTeX: height=0.8\textheight
+   [[./oldpostgresql-author-cluster.pdf]]        
+** R code: Cosine Distance
+#+name: rexample
+#+begin_src r :results output :exports both
+library(lsa)
+pdf("postgresql-author-cluster-cosine.pdf")
+hc <- hclust(as.dist(1-cosine(authors)),method="ward")
+plot(hc,sub="Organized into 2 and 6 clusters",xlab="PostgreSQL Authors")
+rect.hclust(hc,k=2,border="blue")
+rect.hclust(hc,k=6,border="purple")
+dev.off()
+#+end_src
+** Hierarchical Clustering Dendrogram: Cosine Distance
+   #+ATTR_LaTeX: height=0.8\textheight
+   [[./postgresql-author-cluster-cosine.pdf]]        
+
+** Other Clustering Methods
+   - KMeans
+     - centroid based
+   - DBScan
+     - density based
