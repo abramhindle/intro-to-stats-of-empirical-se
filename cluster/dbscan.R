@@ -187,7 +187,8 @@ cumap = umap(coffee[,c(1,2)])
 head(cumap)
 plot(cumap$layout,col=c("red","blue")[1+coffee[,3]])
 
-
+library(colorspace)
+color=diverge_hcl(length(data))[rank(data)]
 dumap = umap(data)
-head(cumap)
-plot(cumap$layout,col=c("red","blue")[1+coffee[,3]])
+plot(dumap$layout,col=color)
+
