@@ -20,10 +20,15 @@ Times <- sample(hod,N,replace=TRUE)
 data <- data.frame(Days,Builds,Times)
 # Prints a table with the following rows
 # Obs, Exp, Column %, ???, ???, Residual, Std. Residual, Adj Residual
-ct <- CrossTable(data$Days, data$Builds,format="SPSS",resid=TRUE,sresid=TRUE,asresid=TRUE)
+ct <- CrossTable(data$Days, data$Builds, format="SPSS", expected=TRUE,resid=TRUE,sresid=TRUE,asresid=TRUE,chisq=TRUE)
 
-# look for adj residuals of bigger than abs(residual) >= 2
+# look for adj residuals of bigger than abs(adj residual) >= 2
 # ok but what if we make sundays mostly Success?
-data$Builds[data$dow=="Sun"] <- sample(c("SyntaxError","TestFailure","Success","Success","Success","Success"),
-                                       sum(data$dow=="Sun"),replace=TRUE)
-ct <- CrossTable(data$Days, data$Builds,format="SPSS",resid=TRUE,sresid=TRUE,asresid=TRUE)
+data$Builds[data$Days=="Sun"] <- sample(c("SyntaxError","TestFailure","Success","Success","Success","Success"),
+                                       sum(data$Days=="Sun"),replace=TRUE)
+
+# ct <- CrossTable(data$Days, data$Builds,format="SPSS",resid=TRUE,sresid=TRUE,asresid=TRUE)
+ct <- CrossTable(data$Days, data$Builds, format="SPSS", expected=TRUE,resid=TRUE,sresid=TRUE,asresid=TRUE,chisq=TRUE)
+
+
+ct <- CrossTable(data$Times, data$Builds, format="SPSS", expected=TRUE,resid=TRUE,sresid=TRUE,asresid=TRUE,chisq=TRUE)
