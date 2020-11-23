@@ -22,6 +22,7 @@ pdf("oldpostgresql-author-cluster.pdf")
 
 
 hc <- hclust(as.dist(1-cor(authors)),method="ward")
+# hc <- hclust(dist(t(authors)),method="ward")
 plot(hc,sub="Organized into 2 and 6 clusters",xlab="PostgreSQL Authors")
 rect.hclust(hc,k=2,border="blue")
 #rect.hclust(hc,k=3,border="red")
