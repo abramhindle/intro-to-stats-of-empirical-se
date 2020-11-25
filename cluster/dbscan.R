@@ -32,7 +32,7 @@ pdata(dims = c(1,4))
 pdata(dims = c(2,3))
 pdata(dims = c(2,4))
 pdata(dims = c(3,4))
-clusplot(data, data.ds$cluster, color=TRUE, shade=TRUE,
+clusplot(data, data.ds$cluster, color=TRUE, shade=FALSE,
          labels=4, lines=2)
 
 
@@ -54,10 +54,10 @@ k3 <- kmeans(coffee[,c(1,2)],3)
 clusplot(coffee[,c(1,2)], k3$cluster, color=TRUE, shade=TRUE,
          labels=4, lines=2)
 k4 <- kmeans(coffee[,c(1,2)],4)
-clusplot(coffee[,c(1,2)], k4$cluster, color=TRUE, shade=TRUE,
+clusplot(coffee[,c(1,2)], k4$cluster, color=TRUE, shade=FALSE,
          labels=4, lines=2)
 k10 <- kmeans(coffee[,c(1,2)],10)
-clusplot(coffee[,c(1,2)], k10$cluster, color=TRUE, shade=TRUE,
+clusplot(coffee[,c(1,2)], k10$cluster, color=TRUE, shade=FALSE,
          labels=4, lines=2)
 
 
@@ -66,7 +66,7 @@ require(MASS)
 
 #log scale the data
 logdata = log(0.5+abs(data))
-clusplot(logdata, data.ds$cluster, color=TRUE, shade=TRUE,
+clusplot(logdata, data.ds$cluster, color=TRUE, shade=FALSE,
          labels=4, lines=2)
 
 
@@ -107,20 +107,20 @@ clusplot(logdata, data.ds$cluster, color=TRUE, shade=TRUE,
 
 # now kmeans
 k2 <- kmeans(data,2)
-clusplot(logdata, k2$cluster, color=TRUE, shade=TRUE,
+clusplot(logdata, k2$cluster, color=TRUE, shade=FALSE,
          labels=4, lines=2)
 
 k3 <- kmeans(data,3)
-clusplot(logdata, k3$cluster, color=TRUE, shade=TRUE,
+clusplot(logdata, k3$cluster, color=TRUE, shade=FALSE,
          labels=4, lines=2)
 k4 <- kmeans(data,4)
-clusplot(logdata, k4$cluster, color=TRUE, shade=TRUE,
+clusplot(logdata, k4$cluster, color=TRUE, shade=FALSE,
          labels=4, lines=2)
 k5 <- kmeans(data,5)
-clusplot(logdata, k5$cluster, color=TRUE, shade=TRUE,
+clusplot(logdata, k5$cluster, color=TRUE, shade=FALSE,
          labels=4, lines=2)
 k6 <- kmeans(data,6)
-clusplot(logdata, k6$cluster, color=TRUE, shade=TRUE,
+clusplot(logdata, k6$cluster, color=TRUE, shade=FALSE,
          labels=4, lines=2)
 
 
@@ -128,7 +128,7 @@ clusplot(logdata, k6$cluster, color=TRUE, shade=TRUE,
 d <- dist(data)
 
 # compare 2 clustering
-cluster.stats(d, k2$cluster, k3$cluster)
+cluster.stats(d, k3$cluster, k6$cluster)
 
 # hclust is a pain but the rectangles can help us
 # give discreet clusters to hclust
@@ -185,10 +185,11 @@ pairwiseClusters <- function() {
 library(umap)
 cumap = umap(coffee[,c(1,2)])
 head(cumap)
-plot(cumap$layout,col=c("red","blue")[1+coffee[,3]])
+plot(cumap$layout,col=c("blue","red")[1+coffee[,3]])
 
 library(colorspace)
 color=diverge_hcl(length(data))[rank(data)]
 dumap = umap(data)
-plot(dumap$layout,col=color)
+colors <- round((1:3600)/300)
+plot(dumap$layout,col=colors)
 

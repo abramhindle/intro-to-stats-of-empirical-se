@@ -1,14 +1,24 @@
 #neil and abram annotations!
 cores <- 8
-pgsqln <- read.csv("output/pgsqln.arff.csv",header=TRUE)
-pgsqla <- read.csv("output/pgsqla.arff.csv",header=TRUE)
+pgsqln <- read.csv("../IRR/output/pgsqln.arff.csv",header=TRUE)
+pgsqla <- read.csv("../IRR/output/pgsqla.arff.csv",header=TRUE)
 nn <- length(pgsqln)
 na <- length(pgsqla)
 pn <- pgsqln[,(nn-6):nn]
 pa <- pgsqla[,(na-6):na]
 
-library(irr)
+students <- c()
+students$abr   <- c(1,1,0,0,0,0)
+students$kal   <- c(0,1,0,0,0,0)
+students$sam   <- c(0,1,1,0,0,0)
+students$reb   <- c(0,1,0,0,0,0)
+students$lui   <- c(0,1,1,0,1,0)
+students$art   <- c(0,1,1,0,0,0)
 
+students <- data.frame(students)
+
+library(irr)
+#students[,c("lui","abr")]
 # http://en.wikipedia.org/wiki/Fleiss%27_kappa
 # http://en.wikipedia.org/wiki/Cohen%27s_kappa
 # http://en.wikipedia.org/wiki/Inter-rater_reliability#Kappa_statistics
@@ -18,6 +28,7 @@ kappa2(matrix(c(c(1:100)*0,c(1:100)*0),ncol=2))
 kappa2(matrix(round(c( 1*(runif(600)>.9), 1*(runif(600)>.9))), ncol=2))
 kappa2(matrix(c( 1*(runif(600)>.99), 1*(runif(600)>.99)), ncol=2))
 kappa2(matrix(c( (runif(600)>.5), (runif(600)>.5)), ncol=2))
+kappa2(matrix(c( 1*(runif(600)>.1), 1*(runif(600)>.1)), ncol=2))
 
 normit <- function(x) { x*4 + 1 } 
 

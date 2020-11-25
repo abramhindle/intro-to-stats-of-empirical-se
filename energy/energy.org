@@ -1,0 +1,89 @@
+* Energy Measurement
+  - E = P * T
+  - P is in Watts, instataneous consumption
+  - E is in Joules which is a watt-second. 
+  - My laptop can go down to 6W, if it runs for a 1 minute that's 360J
+    - It often runs at 7 to 13W
+** Benchmarking
+  - Remember to run multiple times, there is variation
+    - sometimes you should run at least once to ignore the cache startup times
+      - sometimes that's realistic and you should keep
+  - Some CPUs report energy use
+  - Harder to get other energy measurements
+** Whole system measurement
+   - make sure you don't miss peripherals:
+     - disk drives
+     - network cards
+     - GPS
+** Fine grained measurement
+   - OS based, often counter based
+     - somewhat inaccurate
+     - doesn't measure other programs though
+     - if your program induces work it doesn't measure it.
+* RAPL
+  - RAPL is available on modern intel CPUs
+    - Memory Energy
+    - CPU Energy
+  - On modern CPUs get the perf tool installed:
+
+     sudo apt-get install linux-tools-generic
+     sudo apt-get install linux-tools-common linux-tools-generic linux-tools-`uname -r`
+
+  - On modern CPUs run your command with the perf tool:
+
+     sudo perf stat -a -e "power/energy-cores/" /usr/bin/seq 1 138775
+     # or if that doesn't work
+     sudo perf stat -a -e "cpu-cycles" /usr/bin/seq 1 138775
+
+  - More help about RAPL
+    http://web.eece.maine.edu/~vweaver/projects/rapl/
+
+  - General performance https://github.com/RRZE-HPC/likwid
+     sudo likwid-powermeter -s 4s
+  - Interactive, Intel PowerTOP
+    - sudo powertop
+* Other tools
+** GreenCode
+   - https://greencode.cs.txstate.edu/
+   - Try out programs from https://benchmarksgame.alioth.debian.org/
+   - or http://rosettacode.org/wiki/Rosetta_Code
+   - Try C and Python or other languages you know
+* Labs
+** Lab Exercise 0
+   - check out https://github.com/abramhindle/intro-to-stats-of-empirical-se/
+   - Try out the energy/examplesa
+
+     make all
+     make time-tests
+     make perf-tests
+     make likwid-tests
+
+   - Record the statistics of your favourite test
+   - Run it at least 5 times
+   - Add those values to a new a vector in R
+   - Compare the vectors with t-test or Wilcoxon.
+   - Was there a result?
+** Lab Exercise 1
+   - Grab an existing implementation of an algorithm that could run
+     on GreenCode or with RAPL
+   - Run it at least 5 times.
+   - Start an R script and put those values in as data.
+   - Tweak the code and make a new version
+   - Run it at least 5 times
+   - Add those values to a new a vector in R
+   - Compare the vectors with t-test or Wilcoxon.
+   - Was there a result?
+** Lab Exercise 2
+   - When I use python or ruby I mean a dynamic language, you can use
+     whatever 2 languages you are good at. If you're only good at 1
+     then do something very simple so it will be quick to port.
+   - In Python or Ruby write a small program that runs for a
+     sufficient amount of time to be benchmarked.
+   - Run it at least 5 times
+   - Add data to an R script
+   - Port the program to Ruby or Python
+   - Run it at least 5 times
+   - Add data to an R script
+   - Was there a difference?
+
+
