@@ -1,3 +1,0 @@
-[submodule "sentiment/SentiCR"]
-	path = sentiment/SentiCR
-	url = https://github.com/senticr/SentiCR
