@@ -39,9 +39,13 @@
     http://web.eece.maine.edu/~vweaver/projects/rapl/
 
   - General performance https://github.com/RRZE-HPC/likwid
+
      sudo likwid-powermeter -s 4s
+
   - Interactive, Intel PowerTOP
-    - sudo powertop
+
+     sudo powertop
+
 * Other tools
 ** GreenCode
    - https://greencode.cs.txstate.edu/

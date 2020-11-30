@@ -5,6 +5,9 @@ read-a-file-by-line-getline: read-a-file-by-line-getline.c
 
 read-a-file-by-line-mmap: read-a-file-by-line-mmap.c
 
+getline: read-a-file-by-line-mmap read-a-file-by-line-getline 
+	sudo likwid-powermeter ./read-a-file-by-line-getline | tail -n 13
+	sudo likwid-powermeter ./read-a-file-by-line-mmap | tail -n 13
 
 likwid-tests: read-a-file-by-chars read-a-file-by-line-getline read-a-file-by-line-mmap read-a-file-by-chars.pl  read-a-file-by-chars.py
 	cat input.txt > /dev/null
