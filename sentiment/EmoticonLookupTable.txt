@@ -1,0 +1,1 @@
+senticr/SentiCR/EmoticonLookupTable.txt
