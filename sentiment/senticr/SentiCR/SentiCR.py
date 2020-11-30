@@ -32,7 +32,7 @@ from imblearn.over_sampling import SMOTE
 
 
 def replace_all(text, dic):
-    for i, j in dic.iteritems():
+    for i, j in dic.items():
         text = text.replace(i, j)
     return text
 
@@ -104,7 +104,7 @@ contractions_regex = re.compile('(%s)' % '|'.join(contractions_dict.keys()))
 def expand_contractions(s, contractions_dict=contractions_dict):
      def replace(match):
          return contractions_dict[match.group(0)]
-     return contractions_regex.sub(replace, s.lower())
+     return contractions_regex.sub(replace, str(s).lower())
 
 
 url_regex = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
@@ -237,8 +237,7 @@ class SentiCR:
         Y_train = np.array(training_ratings)
 
         #Apply SMOTE to improve ratio of the minority class
-        smote_model = SMOTE(ratio=0.5, random_state=None, k=None, k_neighbors=15, m=None, m_neighbors=15, out_step=.0001,
-                   kind='regular', svm_estimator=None, n_jobs=1)
+        smote_model = SMOTE(sampling_strategy=0.5, random_state=None, k_neighbors=15, n_jobs=1)
 
         X_resampled, Y_resampled=smote_model.fit_sample(X_train, Y_train)
 
