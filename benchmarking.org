@@ -1,0 +1,196 @@
+* Performance Benchmarking
+  - Abram Hindle <hindle1@ualberta.ca> <2020-12-02 Wed>
+  - Discussing SOFTWARE Benchmarking
+** Purpose
+   - to know how fast hardware is
+   - to know how fast software is
+   - to know how a system handles various loads
+   - to push a system into a state to observe effects
+   - to compare systems based on performance
+** Types of Performance Benchmarks
+   - Throughput
+     - how many operations per time unit
+       - floating point ops per second
+   - Time-based / Task-based
+     - the time or resource consumed to complete a task
+   - Mixed
+     - a combination
+** General Methodology
+   - Setup System under test
+   - repeat 10+ times or
+     - setup test
+     - Test & Measure
+     - tear down test
+     - record result
+   - summarize and compare
+*** Choices
+    - what to measure
+    - how to measure
+    - how to setup
+    - how to teardown
+    - what to control for
+    - what not to control for
+    - realism concerns
+** SPEC
+   - Standard Performance Evaluation Corporation
+   - Maintains and charges money for benchmarks.
+   - Because they charge money for benchmarks that include free
+     software I would remain skeptical.
+   - Academics do man the committees that produce the benchmarks.
+** CPU
+   - Has CPU state which is the frequency that the CPU runs at.
+   - lower frequency is slower and uses less energy, higher latency
+   - high frequency is faster and uses more energy.
+   - General purpose CPUs do a lot of things at once
+*** Integer
+    - How does it move data around and do basic math
+*** Floating Point
+    - how does it deal with floating point numbers
+*** Vectorized Performance
+    - Batching similar results
+    - mapping values
+    - can impact performance with compilers and JIT that support or don't support vector ops.
+*** CPU States
+    - Different frequencies consume different energy
+    - Different frequencies on different cores    
+*** Power issues
+    - If there's not enough power the CPU might not run at appropriate rates and might clock down
+    - If there's not enough voltage you can't use lots of different features
+*** Heat issues
+    - CPUs that get too hot will shutdown or clock down.
+    - Heat can be inconsistent
+    - Ambient enviroment matters
+** SUT
+   - System under test
+   - what you are measuring
+   - usually should be setup to represent the scenario you are testing
+   - should be controllable
+   - can be a simple piece of software
+   - can be a cloud
+** Confounds
+*** Cache
+    - caching at all levels will change performance
+    - this is why people like to throw away initial measurements
+      because they want the most cached highest performance examples
+      - totally unrealistic though
+*** Granularity of measurement
+    - things on computers are quick
+      - will you be able to capture the effect?
+    - Did you measure the entire system or part of it
+      - measuring part ignores the induced load
+      - measuring everything hides effects in noise
+*** Contexts
+    - Realism
+      - a phone in a pocket
+      - a laptop in a cafe
+      - a server in a datacenter
+      - a cloud VM
+    - Micro Benchmark
+      - Not realistic
+      - meant to know the best performance of a SUT
+      - commonly used to compare 2 pieces of code
+      - https://benchmarksgame-team.pages.debian.net/benchmarksgame/which-programs-are-fastest.html
+      - Typically 300X improvement in a Micro Benchmark might show up
+        as less than 5% performance improvement in the wild where the
+        software is not used in the same way or at the same rate.
+    - Scenarios
+      - maybe an attempt at realism
+      - but goal oriented
+    - Task based
+      - measure effectiveness at a task according to some resource limitations
+*** Instrumentation overhead
+    - how is the test being run? 
+    - how much does it cost to the run the test
+    - For UI tests
+      - does it need to reflect on objects to know what to click
+      - does it need DOM access?
+      - is a click the same as a mushy finger click
+      - injected touch events are less work that multitouch events from the touch screen
+    - If you're watching method calls what is the cost of that?
+*** Background Processes
+    - If too much is going on measurements will be more variable
+*** CPU State   
+    - what state did you state the test in
+    - is the governor on
+    - what is the frequency
+    - will it change frequency during the test
+*** Temperature
+    - What is the temperature of the SUT before and during test?
+*** Network
+    - If you're using wifi or the internet are the contexts comparable
+      - Was amazon down?
+      - Was it peak time of day?
+    - If you run your tests in a VM or Docker you have overhead
+*** Disk
+    - Files get cached if you access them often
+      - subsequent tests could be faster
+    - You change the filesystems
+    - repeatability of disk IO is not great
+*** Containers
+    - low overhead 
+    - Copying on IO and Network
+    - Good for CPU and memory bound jobs
+    - Not clear about GPU
+*** VMs
+    - high overhead
+    - quite controlled
+    - repeatable
+    - high IO overhead,
+    - sometimes very high CPU and memory overhead
+    - different virtualization strategies 
+*** Cloud
+    - usually you don't control the entire cloud
+    - performance will differ based on what the cloud is being used for.
+** Energy
+*** Energy Star
+    - https://www.energystar.gov/
+    - Estimate energy consumption of appliances, including computers
+*** SpecPower
+    - Costs money. 3k
+    - http://www.spec.org/power_ssj2008/
+    - Methodology: http://www.spec.org/power/docs/SPEC-Power_and_Performance_Methodology.pdf
+    - High workload benchmark primarily meant for servers.
+    - Very server oriented
+    - Ignores idle
+    - Measures idle only as a baseline
+    - Guidelines for power and temperature measure http://www.spec.org/power/docs/SPEC-Power_Measurement_Setup_Guide.pdf
+*** ENERGISE
+   - The Perils of Energy Mining: Measure a Bunch, Compare just Once
+     https://softwareprocess.es/pubs/hindle2016D4SE-energymining.pdf
+   - Environment -- prepare a stable testbed for energy measurement.
+   - N-versions -- run a test across more than 1 version of the software.
+   - Energy or power -- do we care about total energy consumed of a task or the per second
+     cost of running a service?
+   - Repeat -- 1 run is not enough, we need to run our tests multiple times to address
+     background noise.
+   - Granularity -- what level of measurement, how often, and what level of invasiveness
+     of instrumentation?
+   - Idle -- how do applications and service react with no load: is energy being wasted?
+   - Statistics -- repeat measures call for summary statistics and comparing distributions.
+   - Exceptions -- errors happen, how do we address with them or notice them?
+** Microbenchmarking
+*** Python
+    - timeit
+    - cProfile
+    - SnakeViz https://jiffyclub.github.io/snakeviz/
+*** Java
+    - JMH
+    - https://openjdk.java.net/projects/code-tools/jmh/
+      - Tutorial https://www.baeldung.com/java-microbenchmark-harness
+** Conferences:
+   - ICPE - Performance Engineering
+** References
+   - The Perils of Energy Mining: Measure a Bunch, Compare just Once
+     https://softwareprocess.es/pubs/hindle2016D4SE-energymining.pdf
+   - SpecPOWER
+    - http://www.spec.org/power_ssj2008/
+   - EnergyStar
+    - https://www.energystar.gov/
+   - Wikipedia Benchmarks
+     https://en.wikipedia.org/wiki/Benchmark_(computing)#Common_benchmarks
+   - FLOSS Benchmarks
+      https://en.wikipedia.org/wiki/Benchmark_(computing)#Open_source_benchmarks
+   - Small Guide to Software Benchmarking by Markus Püschel
+     - https://users.ece.cmu.edu/~pueschel/teaching/guides/guide-benchmarking.pdf
+   - Benchmarking in Software Engineering by Alessandro Garcia 2013
+     - http://www.inf.puc-rio.br/~inf2921/2013_2/docs/aulas/INF2921_aula6.pdf
