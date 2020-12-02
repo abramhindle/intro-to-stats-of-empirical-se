@@ -193,6 +193,17 @@
     - Use box plots! Or violin plots.
     - Provide absolute measurements
       - then provide relative measurements
+        - such as speedup
+    - Don't report ONLY means. Means aren't meaningful for many time based experiments.
+      - Geometric mean is a lot safer
+        - "How not to lie with Statistics: The Correct Way to Summarize Benchmark Results", Philip J. Fleming and John J. Wallace
+          - http://ece.uprm.edu/~nayda/Courses/Icom5047F06/Papers/paper4.pdf
+          - They argue you can't use MEAN on normalized results, you should use geometric mean.
+            - They don't discuss median.
+            - They do say: "However, it should be made clear that any measure of the mean value of data is misleading when there is
+      - Geometric mean is the product of your N measurements taken to the Nth root.
+        - e.g., 1,2,3 is (1*2*3)^3 = 1.8
+large variance."
     - Provide details of the system including hardware
       - include dates
       - include versions of software
@@ -206,6 +217,8 @@
     - You can use speedup but it's not very sound and makes assumptions that the mean is meaningful.
       - The Speedup-Test: A Statistical Methodology for Program Speedup Analysis and Computation Sid Touati, Julien Worms, Sébastien Briais
         - https://hal.inria.fr/hal-00764454/document/
+    - Effect sizes such as Cliff's Delta can be used to show that
+      there is a difference and it has an effect.
 *** Comparison
     - Use confidence intervals of the difference.
       - You should be comparing 10+ versus 10+ runs so get the 95%
@@ -247,3 +260,5 @@
      - https://users.ece.cmu.edu/~pueschel/teaching/guides/guide-benchmarking.pdf
    - Benchmarking in Software Engineering by Alessandro Garcia 2013
      - http://www.inf.puc-rio.br/~inf2921/2013_2/docs/aulas/INF2921_aula6.pdf
+   - "How not to lie with Statistics: The Correct Way to Summarize Benchmark Results", Philip J. Fleming and John J. Wallace 1986
+     - http://ece.uprm.edu/~nayda/Courses/Icom5047F06/Papers/paper4.pdf
