@@ -168,6 +168,14 @@
    - Idle -- how do applications and service react with no load: is energy being wasted?
    - Statistics -- repeat measures call for summary statistics and comparing distributions.
    - Exceptions -- errors happen, how do we address with them or notice them?
+*** GreenUp
+   - SpeedUp measures for green software comparison
+   - Paper:
+     Abdulsalam S, Zong Z, Gu Q, Qiu M. Using the Greenup, Powerup, and
+     Speedup metrics to evaluate software energy efficiency. In2015 Sixth
+     International Green and Sustainable Computing Conference (IGSC) 2015
+     Dec 14 (pp. 1-8). IEEE.
+     - https://greensoft.cs.txstate.edu/wp-content/uploads/2018/05/Greenup_Powerup_Speedup.pdf
 ** Microbenchmarking
 *** Python
     - timeit
@@ -177,8 +185,53 @@
     - JMH
     - https://openjdk.java.net/projects/code-tools/jmh/
       - Tutorial https://www.baeldung.com/java-microbenchmark-harness
+** Evaluation
+   - Evaluation of benchmarking is annoying
+   - Reporting is typically done in a relative fashion and that is annoying because we can't see the measurements.
+*** Reporting
+    - Report the distribution (quartiles)
+    - Use box plots! Or violin plots.
+    - Provide absolute measurements
+      - then provide relative measurements
+    - Provide details of the system including hardware
+      - include dates
+      - include versions of software
+    - Report number of trials
+    - COV is often used to compare variance
+      - standard deviation / mean
+      - it's a normalized variance
+    - Some people report on the best results.
+      - This baloney and deceptive. Don't do it.
+      - There are some scenarios where this would matter but most cases this is dangerous.
+    - You can use speedup but it's not very sound and makes assumptions that the mean is meaningful.
+      - The Speedup-Test: A Statistical Methodology for Program Speedup Analysis and Computation Sid Touati, Julien Worms, Sébastien Briais
+        - https://hal.inria.fr/hal-00764454/document/
+*** Comparison
+    - Use confidence intervals of the difference.
+      - You should be comparing 10+ versus 10+ runs so get the 95%
+        confidence interval of the difference! You can just boostrap
+        it.
+    - Use statistical tests to compare distributions
+      - T-Test for normally distribution data
+      - Wilcoxon / Mann-Whitney for not normal data.
+    - Use paired tests when you are measuring/comparing a treatment of a test.
+      - e.g., gcc -O2 versus gcc -O3
+      - Wilcoxon signed rank test
+      - The tests can estimate confidence intervals as well
+    - When comparing rates/ratios consider if you can match the results as a poisson.
+      - Consider the Exact Poisson tests with Matching Confidence Intervals
+        - https://www.rdocumentation.org/packages/exactci/versions/1.3-3/topics/poisson.exact
+      - Or Comparison of Poisson rates
+    - When doing factor analysis consider:
+      - Kruskall Wallace to determine if the factors matter
+        - then pairwise (not paired) Wilcoxons or pairwise confidence intervals
+*** If it is PASS/FAIL
+    - use statistics for Beurnolli Trials
+    - Like Two Proportions test.
+    - Or if it is multicategorical X^2.
 ** Conferences:
    - ICPE - Performance Engineering
+   - USENIX - has many performance parts to it
 ** References
    - The Perils of Energy Mining: Measure a Bunch, Compare just Once
      https://softwareprocess.es/pubs/hindle2016D4SE-energymining.pdf
