@@ -25,11 +25,51 @@
        - when the data is not normal.
 *** T-Test in R
        - in R:
-         #+BEGIN_SRC R
+         #+BEGIN_SRC R :results output
           t.test(rnorm(100),rnorm(100))
           t.test(runif(100),rnorm(100))
           t.test(rnorm(100,1),rnorm(100))
          #+END_SRC
+
+         #+RESULTS:
+         #+begin_example
+
+                 Welch Two Sample t-test
+
+         data:  rnorm(100) and rnorm(100)
+         t = -0.13369, df = 196.83, p-value = 0.8938
+         alternative hypothesis: true difference in means is not equal to 0
+         95 percent confidence interval:
+          -0.2974694  0.2596993
+         sample estimates:
+           mean of x   mean of y 
+         0.001388361 0.020273392 
+
+
+                 Welch Two Sample t-test
+
+         data:  runif(100) and rnorm(100)
+         t = 4.2682, df = 118, p-value = 4.002e-05
+         alternative hypothesis: true difference in means is not equal to 0
+         95 percent confidence interval:
+          0.2286157 0.6243579
+         sample estimates:
+          mean of x  mean of y 
+         0.48397373 0.05748695 
+
+
+                 Welch Two Sample t-test
+
+         data:  rnorm(100, 1) and rnorm(100)
+         t = 8.3848, df = 197.91, p-value = 9.431e-15
+         alternative hypothesis: true difference in means is not equal to 0
+         95 percent confidence interval:
+          0.8792846 1.4200737
+         sample estimates:
+           mean of x   mean of y 
+          1.06686178 -0.08281737 
+
+         #+end_example
 
          #+BEGIN_EXAMPLE
             > t.test(rnorm(100),rnorm(100))
@@ -88,12 +128,44 @@
    - Wilcoxon Test
      - non-parametric comparison of distributions
      - It is about rank based agreement
-       - if we look at the distribution by rank how similar is it?
+       - if we look at the distribution by rank or comparison how similar is it?
      - Pairwise comparison
      - Good for non-normal distributions
      - A little more strict than t-test
       
 *** Wilcoxon in R
+         #+BEGIN_SRC R :results output
+         wilcox.test(rnorm(100),rnorm(100))
+         wilcox.test(runif(100),rnorm(100))
+         wilcox.test(rnorm(100,1),rnorm(100))
+         #+END_SRC
+
+         #+RESULTS:
+         #+begin_example
+
+                 Wilcoxon rank sum test with continuity correction
+
+         data:  rnorm(100) and rnorm(100)
+         W = 4890, p-value = 0.789
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon rank sum test with continuity correction
+
+         data:  runif(100) and rnorm(100)
+         W = 6772, p-value = 1.502e-05
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon rank sum test with continuity correction
+
+         data:  rnorm(100, 1) and rnorm(100)
+         W = 7462, p-value = 1.806e-09
+         alternative hypothesis: true location shift is not equal to 0
+
+         #+end_example
+
+
           #+BEGIN_EXAMPLE
           > wilcox.test(rnorm(100),rnorm(100))
           
@@ -119,6 +191,166 @@
           W = 7418, p-value = 3.486e-09
           alternative hypothesis: true location shift is not equal to 0 
           #+END_EXAMPLE
+** Wilcoxon signed-rank test (paired)
+   - Compare 2 dependent datasets
+     - before and after
+     - before treatment and after treatment
+   - Uses ranks of differences to compare.
+   - Non-parametric
+   - Cares about if the location moves
+     - doesn't seem to care about scale
+*** signed-rank test in R
+         #+BEGIN_SRC R :results output
+         wilcox.test(rnorm(100),rnorm(100),paired=TRUE)
+         #+END_SRC
+
+         #+RESULTS:
+         : 
+         : 	Wilcoxon signed rank test with continuity correction
+         : 
+         : data:  rnorm(100) and rnorm(100)
+         : V = 2382, p-value = 0.6242
+         : alternative hypothesis: true location shift is not equal to 0
+         : 
+
+
+         Location matters:
+         #+BEGIN_SRC R :results output
+         x = rnorm(100) 
+         wilcox.test(x,x+0.1,paired=TRUE)
+         wilcox.test(x,x+0.5,paired=TRUE)
+         wilcox.test(x,x+1.0,paired=TRUE)
+         y = x - 0.1*rnorm(100)
+         wilcox.test(x,y,paired=TRUE)
+         z = x + 0.1*runif(100)
+         wilcox.test(x,z,paired=TRUE)
+         w = x*runif(100)
+         wilcox.test(x,w,paired=TRUE)
+         #+END_SRC
+
+         #+RESULTS:
+         #+begin_example
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x + 0.1
+         V = 0, p-value < 2.2e-16
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x + 0.5
+         V = 0, p-value < 2.2e-16
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x + 1
+         V = 0, p-value < 2.2e-16
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and y
+         V = 2656, p-value = 0.6536
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and z
+         V = 0, p-value < 2.2e-16
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and w
+         V = 2209, p-value = 0.278
+         alternative hypothesis: true location shift is not equal to 0
+
+         #+end_example
+
+         But scale might not matter
+         #+BEGIN_SRC R :results output
+         x = rnorm(100) 
+         wilcox.test(x,x*0.1,paired=TRUE)
+         wilcox.test(x,x*0.5,paired=TRUE)
+         wilcox.test(x,x*1.0,paired=TRUE)
+         wilcox.test(x,x*4.0,paired=TRUE)
+
+         wilcox.test(x,x*0.1+0.1,paired=TRUE)
+         wilcox.test(x,x*0.5+0.1,paired=TRUE)
+         wilcox.test(x,x*1.0+0.1,paired=TRUE)
+         wilcox.test(x,x*4.0+0.1,paired=TRUE)
+
+         #+END_SRC
+
+         #+RESULTS:
+         #+begin_example
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x * 0.1
+         V = 2128, p-value = 0.1728
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x * 0.5
+         V = 2128, p-value = 0.1728
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x * 1
+         V = 0, p-value = NA
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x * 4
+         V = 2922, p-value = 0.1728
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x * 0.1 + 0.1
+         V = 1785, p-value = 0.011
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x * 0.5 + 0.1
+         V = 1522, p-value = 0.000567
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x * 1 + 0.1
+         V = 0, p-value < 2.2e-16
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon signed rank test with continuity correction
+
+         data:  x and x * 4 + 0.1
+         V = 2822, p-value = 0.308
+         alternative hypothesis: true location shift is not equal to 0
+
+         #+end_example
+
+
+
 ** Kolmogorov-Smirnov Tests
    - Non parametric
    - good with SE data and data with skew
@@ -128,11 +360,38 @@
    - P-values > 0.05 mean they are similar distributions or not
      different
 *** R
-    #+BEGIN_SRC R
+    #+BEGIN_SRC R :results output    
     ks.test(rnorm(100),rnorm(100))
     ks.test(runif(100),rnorm(100))
     ks.test(rnorm(100,1),rnorm(100))
-    #+END_SRC R
+    #+END_SRC
+
+    #+RESULTS:
+    #+begin_example
+
+            Two-sample Kolmogorov-Smirnov test
+
+    data:  rnorm(100) and rnorm(100)
+    D = 0.14, p-value = 0.281
+    alternative hypothesis: two-sided
+
+
+            Two-sample Kolmogorov-Smirnov test
+
+    data:  runif(100) and rnorm(100)
+    D = 0.44, p-value = 7.818e-09
+    alternative hypothesis: two-sided
+
+
+            Two-sample Kolmogorov-Smirnov test
+
+    data:  rnorm(100, 1) and rnorm(100)
+    D = 0.5, p-value = 2.778e-11
+    alternative hypothesis: two-sided
+
+    #+end_example
+    
+
 **** R Output
          #+BEGIN_EXAMPLE
          > ks.test(rnorm(100),rnorm(100))
@@ -159,6 +418,67 @@
          D = 0.46, p-value = 1.292e-09
          alternative hypothesis: two-sided 
          #+END_EXAMPLE
+** Kruskal Wallace Test
+   - used to determine if a factor matters
+   - kind of strange to use it in a 2 group comparison
+     but it is as safe as the wilcoxon / mann whitney
+   - useful when you have multiple groups and you want to say the group can matter
+   - Doesn't tell you which group
+   - Workflow:
+     - Does factor X matter?
+       - kruskal wallace test
+         - if significant then run a pairwise wilcoxon to find which groups matter
+
+*** Kruskal Wallace Test in R
+         #+BEGIN_SRC R :results output         
+         kruskal.test(rnorm(100),g=c(rep(0,50),rep(1,50)))
+         kruskal.test(runif(100),g=c(rep(0,50),rep(1,50)))
+         kruskal.test(runif(100),g=c(rep(0,33),rep(1,33),rep(2,34)))
+         x = c(1+runif(33),rnorm(33),rnorm(34))
+         g = c(rep(0,33),rep(1,33),rep(2,34))
+         kruskal.test(x,g)
+         pairwise.wilcox.test(x,g)
+         #+END_SRC
+
+         #+RESULTS:
+         #+begin_example
+
+                 Kruskal-Wallis rank sum test
+
+         data:  rnorm(100) and c(rep(0, 50), rep(1, 50))
+         Kruskal-Wallis chi-squared = 0.048665, df = 1, p-value = 0.8254
+
+
+                 Kruskal-Wallis rank sum test
+
+         data:  runif(100) and c(rep(0, 50), rep(1, 50))
+         Kruskal-Wallis chi-squared = 2.0958, df = 1, p-value = 0.1477
+
+
+                 Kruskal-Wallis rank sum test
+
+         data:  runif(100) and c(rep(0, 33), rep(1, 33), rep(2, 34))
+         Kruskal-Wallis chi-squared = 4.1855, df = 2, p-value = 0.1233
+
+
+                 Kruskal-Wallis rank sum test
+
+         data:  x and g
+         Kruskal-Wallis chi-squared = 55.203, df = 2, p-value = 1.03e-12
+
+
+                 Pairwise comparisons using Wilcoxon rank sum test 
+
+         data:  x and g 
+
+           0       1   
+         1 5.7e-12 -   
+         2 1.2e-14 0.78
+
+         P value adjustment method: holm 
+         #+end_example
+
+
 ** X^2 Test
    - Good for non-parametric distributions
    - Good for counts
@@ -405,6 +725,11 @@
     summary(booted)
     quantile(booted,c(alpha/2,1.0 - alpha/2))
 #+END_SRC
+
+#+RESULTS:
+|  -0.557460881832913 |
+| -0.0929590855864357 |
+
 *** R Run
 #+BEGIN_EXAMPLE
 >     N=100
@@ -453,6 +778,18 @@
     }
     legend(0,30,counts,pch=1,col=c(1:length(boots)))
     #+END_SRC
+
+    #+RESULTS:
+    | 0.196484375 | 12.5581395348837 | 0 | 30 | 0.0703125 | 28.7441860465116 |
+    | 0.196484375 | 12.5581395348837 | 0 | 30 | 0.0703125 | 27.4883720930233 |
+    | 0.196484375 | 12.5581395348837 | 0 | 30 | 0.0703125 | 26.2325581395349 |
+    | 0.196484375 | 12.5581395348837 | 0 | 30 | 0.0703125 | 24.9767441860465 |
+    | 0.196484375 | 12.5581395348837 | 0 | 30 | 0.0703125 | 23.7209302325581 |
+    | 0.196484375 | 12.5581395348837 | 0 | 30 | 0.0703125 | 22.4651162790698 |
+    | 0.196484375 | 12.5581395348837 | 0 | 30 | 0.0703125 | 21.2093023255814 |
+    | 0.196484375 | 12.5581395348837 | 0 | 30 | 0.0703125 |  19.953488372093 |
+    | 0.196484375 | 12.5581395348837 | 0 | 30 | 0.0703125 | 18.6976744186047 |
+
 *** Results
 #+BEGIN_EXAMPLE
 >     counts <- c(100,100,100,500,500,500,1000,1000,10000)

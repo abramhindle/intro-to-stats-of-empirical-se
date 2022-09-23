@@ -15,6 +15,7 @@
      - the time or resource consumed to complete a task
    - Mixed
      - a combination
+   - Error
 ** General Methodology
    - Setup System under test
    - repeat 10+ times or
@@ -73,7 +74,7 @@
     - this is why people like to throw away initial measurements
       because they want the most cached highest performance examples
       - totally unrealistic though
-*** Granularity of measurement
+*** Granularity of measurement & instrumentation
     - things on computers are quick
       - will you be able to capture the effect?
     - Did you measure the entire system or part of it
@@ -202,7 +203,7 @@
             - They don't discuss median.
             - They do say: "However, it should be made clear that any measure of the mean value of data is misleading when there is
       - Geometric mean is the product of your N measurements taken to the Nth root.
-        - e.g., 1,2,3 is (1*2*3)^3 = 1.8
+        - e.g., 1,2,3 is (1*2*3)^1/3 = 1.8
 large variance."
     - Provide details of the system including hardware
       - include dates
