@@ -26,7 +26,7 @@
 *** T-Test in R
        - in R:
          #+BEGIN_SRC R :results output
-          t.test(rnorm(100),rnorm(100))
+          t.test(rnorm(10),rnorm(1000))
           t.test(runif(100),rnorm(100))
           t.test(rnorm(100,1),rnorm(100))
          #+END_SRC
@@ -36,38 +36,38 @@
 
                  Welch Two Sample t-test
 
-         data:  rnorm(100) and rnorm(100)
-         t = -0.13369, df = 196.83, p-value = 0.8938
+         data:  rnorm(10) and rnorm(1000)
+         t = -0.50786, df = 9.1098, p-value = 0.6236
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          -0.2974694  0.2596993
+          -1.0780425  0.6821472
          sample estimates:
            mean of x   mean of y 
-         0.001388361 0.020273392 
+         -0.17328879  0.02465888 
 
 
                  Welch Two Sample t-test
 
          data:  runif(100) and rnorm(100)
-         t = 4.2682, df = 118, p-value = 4.002e-05
+         t = 5.4133, df = 116.23, p-value = 3.374e-07
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          0.2286157 0.6243579
+          0.3561731 0.7671781
          sample estimates:
-          mean of x  mean of y 
-         0.48397373 0.05748695 
+           mean of x   mean of y 
+          0.48387361 -0.07780201 
 
 
                  Welch Two Sample t-test
 
          data:  rnorm(100, 1) and rnorm(100)
-         t = 8.3848, df = 197.91, p-value = 9.431e-15
+         t = 5.8762, df = 195.7, p-value = 1.78e-08
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          0.8792846 1.4200737
+          0.5813243 1.1686401
          sample estimates:
-           mean of x   mean of y 
-          1.06686178 -0.08281737 
+          mean of x  mean of y 
+         0.93137270 0.05639051 
 
          #+end_example
 
@@ -135,9 +135,10 @@
       
 *** Wilcoxon in R
          #+BEGIN_SRC R :results output
-         wilcox.test(rnorm(100),rnorm(100))
-         wilcox.test(runif(100),rnorm(100))
-         wilcox.test(rnorm(100,1),rnorm(100))
+         wilcox.test(rnorm(101),rnorm(99))
+         wilcox.test(runif(104),rnorm(102))
+         wilcox.test(rnorm(102,1),rnorm(103))
+         wilcox.test(rnorm(102,1)+10000,rnorm(103))
          #+END_SRC
 
          #+RESULTS:
@@ -145,22 +146,29 @@
 
                  Wilcoxon rank sum test with continuity correction
 
-         data:  rnorm(100) and rnorm(100)
-         W = 4890, p-value = 0.789
+         data:  rnorm(101) and rnorm(99)
+         W = 5109, p-value = 0.79
          alternative hypothesis: true location shift is not equal to 0
 
 
                  Wilcoxon rank sum test with continuity correction
 
-         data:  runif(100) and rnorm(100)
-         W = 6772, p-value = 1.502e-05
+         data:  runif(104) and rnorm(102)
+         W = 7329, p-value = 2.216e-06
          alternative hypothesis: true location shift is not equal to 0
 
 
                  Wilcoxon rank sum test with continuity correction
 
-         data:  rnorm(100, 1) and rnorm(100)
-         W = 7462, p-value = 1.806e-09
+         data:  rnorm(102, 1) and rnorm(103)
+         W = 7688, p-value = 9.893e-09
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon rank sum test with continuity correction
+
+         data:  rnorm(102, 1) + 10000 and rnorm(103)
+         W = 10506, p-value < 2.2e-16
          alternative hypothesis: true location shift is not equal to 0
 
          #+end_example
@@ -209,7 +217,7 @@
          : 	Wilcoxon signed rank test with continuity correction
          : 
          : data:  rnorm(100) and rnorm(100)
-         : V = 2382, p-value = 0.6242
+         : V = 2354, p-value = 0.5577
          : alternative hypothesis: true location shift is not equal to 0
          : 
 
@@ -255,7 +263,7 @@
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and y
-         V = 2656, p-value = 0.6536
+         V = 3031, p-value = 0.0822
          alternative hypothesis: true location shift is not equal to 0
 
 
@@ -269,7 +277,7 @@
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and w
-         V = 2209, p-value = 0.278
+         V = 2628, p-value = 0.7245
          alternative hypothesis: true location shift is not equal to 0
 
          #+end_example
@@ -295,14 +303,14 @@
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and x * 0.1
-         V = 2128, p-value = 0.1728
+         V = 2225, p-value = 0.3031
          alternative hypothesis: true location shift is not equal to 0
 
 
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and x * 0.5
-         V = 2128, p-value = 0.1728
+         V = 2225, p-value = 0.3031
          alternative hypothesis: true location shift is not equal to 0
 
 
@@ -316,21 +324,21 @@
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and x * 4
-         V = 2922, p-value = 0.1728
+         V = 2825, p-value = 0.3031
          alternative hypothesis: true location shift is not equal to 0
 
 
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and x * 0.1 + 0.1
-         V = 1785, p-value = 0.011
+         V = 1902, p-value = 0.03233
          alternative hypothesis: true location shift is not equal to 0
 
 
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and x * 0.5 + 0.1
-         V = 1522, p-value = 0.000567
+         V = 1654, p-value = 0.002762
          alternative hypothesis: true location shift is not equal to 0
 
 
@@ -344,7 +352,7 @@
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and x * 4 + 0.1
-         V = 2822, p-value = 0.308
+         V = 2730, p-value = 0.482
          alternative hypothesis: true location shift is not equal to 0
 
          #+end_example
@@ -372,21 +380,21 @@
             Two-sample Kolmogorov-Smirnov test
 
     data:  rnorm(100) and rnorm(100)
-    D = 0.14, p-value = 0.281
+    D = 0.06, p-value = 0.9938
     alternative hypothesis: two-sided
 
 
             Two-sample Kolmogorov-Smirnov test
 
     data:  runif(100) and rnorm(100)
-    D = 0.44, p-value = 7.818e-09
+    D = 0.58, p-value = 4.885e-15
     alternative hypothesis: two-sided
 
 
             Two-sample Kolmogorov-Smirnov test
 
     data:  rnorm(100, 1) and rnorm(100)
-    D = 0.5, p-value = 2.778e-11
+    D = 0.43, p-value = 1.866e-08
     alternative hypothesis: two-sided
 
     #+end_example
@@ -437,6 +445,8 @@
          x = c(1+runif(33),rnorm(33),rnorm(34))
          g = c(rep(0,33),rep(1,33),rep(2,34))
          kruskal.test(x,g)
+         wilcox.test(x[c(1:33)],c(34:34+34))
+         wilcox.test(x[c(1:33)],c(34+33:34+33+33))
          pairwise.wilcox.test(x,g)
          #+END_SRC
 
@@ -446,25 +456,39 @@
                  Kruskal-Wallis rank sum test
 
          data:  rnorm(100) and c(rep(0, 50), rep(1, 50))
-         Kruskal-Wallis chi-squared = 0.048665, df = 1, p-value = 0.8254
+         Kruskal-Wallis chi-squared = 1.2166, df = 1, p-value = 0.27
 
 
                  Kruskal-Wallis rank sum test
 
          data:  runif(100) and c(rep(0, 50), rep(1, 50))
-         Kruskal-Wallis chi-squared = 2.0958, df = 1, p-value = 0.1477
+         Kruskal-Wallis chi-squared = 1.7338, df = 1, p-value = 0.1879
 
 
                  Kruskal-Wallis rank sum test
 
          data:  runif(100) and c(rep(0, 33), rep(1, 33), rep(2, 34))
-         Kruskal-Wallis chi-squared = 4.1855, df = 2, p-value = 0.1233
+         Kruskal-Wallis chi-squared = 2.0886, df = 2, p-value = 0.3519
 
 
                  Kruskal-Wallis rank sum test
 
          data:  x and g
-         Kruskal-Wallis chi-squared = 55.203, df = 2, p-value = 1.03e-12
+         Kruskal-Wallis chi-squared = 42.896, df = 2, p-value = 4.843e-10
+
+
+                 Wilcoxon rank sum test
+
+         data:  x[c(1:33)] and c(34:34 + 34)
+         W = 0, p-value = 0.05882
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon rank sum test
+
+         data:  x[c(1:33)] and c(34 + 33:34 + 33 + 33)
+         W = 0, p-value = 0.003361
+         alternative hypothesis: true location shift is not equal to 0
 
 
                  Pairwise comparisons using Wilcoxon rank sum test 
@@ -472,8 +496,8 @@
          data:  x and g 
 
            0       1   
-         1 5.7e-12 -   
-         2 1.2e-14 0.78
+         1 5.6e-11 -   
+         2 3.7e-08 0.42
 
          P value adjustment method: holm 
          #+end_example
@@ -589,6 +613,236 @@
     data:  st3
     X-squared = 1.4811, df = 3, p-value = 0.6866
     #+END_EXAMPLE
+
+* Effect Size
+  - A change might not be signficant but it is still measurable.
+  - A change might be signfificant but its effect is not measurable.
+  - Many tests look for a stastically significant difference, but not
+    in size.
+    - lots of samples, little difference in size: significant
+    - few samples, big difference in size: insignficant
+  - How do we talk about 
+** Cohen's D
+   - parametric
+   - distributions must be normal
+   - From https://en.wikipedia.org/wiki/Effect_size
+     - Very small	0.01
+     - Small	0.20
+     - Medium	0.50
+     - Large	0.80
+     - Very large	1.20
+     - Huge	2.0
+   - in R you can use the effsize library
+       #+BEGIN_SRC R :results output         
+       library(effsize)
+       cohen.d( rnorm(100), rnorm(100))
+       #+END_SRC
+
+       #+RESULTS:
+       : 
+       : Cohen's d
+       : 
+       : d estimate: 0.06149185 (negligible)
+       : 95 percent confidence interval:
+       :      lower      upper 
+       : -0.2174594  0.3404431 
+       : 
+
+       #+BEGIN_SRC R :results output         
+       library(effsize)
+       cohen.d( rnorm(100,0.1), rnorm(100))
+       cohen.d( rnorm(100,0.3), rnorm(100))
+       cohen.d( rnorm(100,0.5), rnorm(100))
+       cohen.d( rnorm(100,0.7), rnorm(100))
+       cohen.d( rnorm(100,1.0), rnorm(100))
+       cohen.d( rnorm(100,2.0), rnorm(100))
+       #+END_SRC
+
+       #+RESULTS:
+       #+begin_example
+
+       Cohen's d
+
+       d estimate: -0.04891111 (negligible)
+       95 percent confidence interval:
+            lower      upper 
+       -0.3278382  0.2300160 
+
+
+       Cohen's d
+
+       d estimate: 0.3686105 (small)
+       95 percent confidence interval:
+            lower      upper 
+       0.08736675 0.64985423 
+
+
+       Cohen's d
+
+       d estimate: 0.6426659 (medium)
+       95 percent confidence interval:
+           lower     upper 
+       0.3566720 0.9286597 
+
+
+       Cohen's d
+
+       d estimate: 0.9304306 (large)
+       95 percent confidence interval:
+           lower     upper 
+       0.6368433 1.2240179 
+
+
+       Cohen's d
+
+       d estimate: 0.9299423 (large)
+       95 percent confidence interval:
+          lower    upper 
+       0.636370 1.223515 
+
+
+       Cohen's d
+
+       d estimate: 2.070235 (large)
+       95 percent confidence interval:
+          lower    upper 
+       1.724627 2.415843 
+
+       #+end_example
+
+**** Must be normal
+     The results we get from non-normal distributions are pretty suspect
+
+     #+BEGIN_SRC R :results output         
+     library(effsize)
+     cohen.d( runif(100,0.001), runif(100))
+     cohen.d( runif(100,0.01), runif(100))
+     cohen.d( runif(100,0.1), runif(100))
+     cohen.d( runif(100,0.3), runif(100))
+     cohen.d( runif(100,0.5), runif(100))
+     cohen.d( runif(100,0.7), runif(100))
+     cohen.d( runif(100,1.0), runif(100))
+     cohen.d( runif(100,2.0), runif(100))
+     #+END_SRC
+
+     #+RESULTS:
+     #+begin_example
+
+     Cohen's d
+
+     d estimate: -0.08410286 (negligible)
+     95 percent confidence interval:
+          lower      upper 
+     -0.3631115  0.1949058 
+
+
+     Cohen's d
+
+     d estimate: -0.0101637 (negligible)
+     95 percent confidence interval:
+          lower      upper 
+     -0.2890509  0.2687235 
+
+
+     Cohen's d
+
+     d estimate: 0.1718491 (negligible)
+     95 percent confidence interval:
+          lower      upper 
+     -0.1075505  0.4512488 
+
+
+     Cohen's d
+
+     d estimate: 0.4339936 (small)
+     95 percent confidence interval:
+         lower     upper 
+     0.1518443 0.7161429 
+
+
+     Cohen's d
+
+     d estimate: 1.155239 (large)
+     95 percent confidence interval:
+         lower     upper 
+     0.8539884 1.4564899 
+
+
+     Cohen's d
+
+     d estimate: 1.443063 (large)
+     95 percent confidence interval:
+        lower    upper 
+     1.129978 1.756149 
+
+
+     Cohen's d
+
+     d estimate: 2.416227 (large)
+     95 percent confidence interval:
+        lower    upper 
+     2.049435 2.783019 
+
+
+     Cohen's d
+
+     d estimate: NaN (NA)
+     95 percent confidence interval:
+     lower upper 
+       NaN   NaN 
+
+     #+end_example
+
+
+** Cliff's Delta
+  - Non parametric
+  - pairs well with Mann Witney U test (Wilcoxon non-paired)
+  - 0.147 (small), 0.33 (medium), and 0.474 (large)
+*** In R    
+     #+BEGIN_SRC R :results output         
+     library(effsize)
+     cliff.delta( runif(100,0.001), runif(100))
+     cliff.delta( runif(100,0.01), runif(100))
+     cliff.delta( runif(100,0.1), runif(100))
+     cliff.delta( runif(100,0.5), runif(100))
+     #+END_SRC
+
+     #+RESULTS:
+     #+begin_example
+
+     Cliff's Delta
+
+     delta estimate: 0.11 (negligible)
+     95 percent confidence interval:
+           lower       upper 
+     -0.05021268  0.26469345 
+
+
+     Cliff's Delta
+
+     delta estimate: 0.0584 (negligible)
+     95 percent confidence interval:
+           lower       upper 
+     -0.09964357  0.21356942 
+
+
+     Cliff's Delta
+
+     delta estimate: 0.0638 (negligible)
+     95 percent confidence interval:
+           lower       upper 
+     -0.09704059  0.22139305 
+
+
+     Cliff's Delta
+
+     delta estimate: 0.5578 (large)
+     95 percent confidence interval:
+         lower     upper 
+     0.4077179 0.6785364 
+
+     #+end_example
+
 
 * Bootstrapping and Confidence Intervals
 ** Confidence intervals

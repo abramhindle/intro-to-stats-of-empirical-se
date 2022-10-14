@@ -63,3 +63,11 @@ model.entropy(padded_everygrams(n, stripped_tokens_of_file(nltk.lm.preprocessing
 # lower cross entropy (in training set)
 model.entropy(padded_everygrams(n, stripped_tokens_of_file(nltk.__file__)))
 
+for filename,ftokens in zip(nltk_files, tokens):
+    print(filename)
+    print(model.entropy(padded_everygrams(n,ftokens)))
+
+for filename in glob.glob(os.path.dirname(numpy.__file__) + "/*.py"):
+    print(filename)
+    print(model.entropy(padded_everygrams(n,stripped_tokens_of_file(filename))))
+    
