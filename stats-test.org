@@ -37,37 +37,37 @@
                  Welch Two Sample t-test
 
          data:  rnorm(10) and rnorm(1000)
-         t = -0.50786, df = 9.1098, p-value = 0.6236
+         t = 1.0666, df = 9.1232, p-value = 0.3135
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          -1.0780425  0.6821472
+          -0.447979  1.250470
          sample estimates:
-           mean of x   mean of y 
-         -0.17328879  0.02465888 
+          mean of x  mean of y 
+          0.3884415 -0.0128042 
 
 
                  Welch Two Sample t-test
 
          data:  runif(100) and rnorm(100)
-         t = 5.4133, df = 116.23, p-value = 3.374e-07
+         t = 6.1873, df = 117.83, p-value = 9.154e-09
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          0.3561731 0.7671781
+          0.4197865 0.8149836
          sample estimates:
            mean of x   mean of y 
-          0.48387361 -0.07780201 
+          0.51852805 -0.09885699 
 
 
                  Welch Two Sample t-test
 
          data:  rnorm(100, 1) and rnorm(100)
-         t = 5.8762, df = 195.7, p-value = 1.78e-08
+         t = 7.5082, df = 194.73, p-value = 2.102e-12
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          0.5813243 1.1686401
+          0.766901 1.313322
          sample estimates:
           mean of x  mean of y 
-         0.93137270 0.05639051 
+          0.9117352 -0.1283761 
 
          #+end_example
 
@@ -616,12 +616,72 @@
 
 * Effect Size
   - A change might not be signficant but it is still measurable.
-  - A change might be signfificant but its effect is not measurable.
+  - A change might be signficant but its effect is not measurable.
   - Many tests look for a stastically significant difference, but not
     in size.
     - lots of samples, little difference in size: significant
     - few samples, big difference in size: insignficant
-  - How do we talk about 
+  - Significant but negliable
+       #+BEGIN_SRC R :results output         
+       x = rnorm(10000)
+       y = rnorm(10000,0.1)
+       wilcox.test(x,y)
+       library(effsize)
+       cohen.d(x, y)
+       #+END_SRC
+
+       #+RESULTS:
+       #+begin_example
+
+               Wilcoxon rank sum test with continuity correction
+
+       data:  x and y
+       W = 47547675, p-value = 1.892e-09
+       alternative hypothesis: true location shift is not equal to 0
+
+
+       Cohen's d
+
+       d estimate: -0.09464943 (negligible)
+       95 percent confidence interval:
+             lower       upper 
+       -0.12238470 -0.06691416 
+
+       #+end_example
+    - insignificant but different
+       #+BEGIN_SRC R :results output         
+       x = rnorm(10)
+       y = rnorm(10,0.4)
+       t.test(x,y)
+       library(effsize)
+       cohen.d(x, y)
+       #+END_SRC
+
+       #+RESULTS:
+       #+begin_example
+
+               Welch Two Sample t-test
+
+       data:  x and y
+       t = -1.8129, df = 17.904, p-value = 0.08665
+       alternative hypothesis: true difference in means is not equal to 0
+       95 percent confidence interval:
+        -1.6341633  0.1205764
+       sample estimates:
+        mean of x  mean of y 
+       -0.3314420  0.4253514 
+
+
+       Cohen's d
+
+       d estimate: -0.8107498 (large)
+       95 percent confidence interval:
+            lower      upper 
+       -1.7881480  0.1666485 
+
+       #+end_example
+
+
 ** Cohen's D
    - parametric
    - distributions must be normal
@@ -642,10 +702,10 @@
        : 
        : Cohen's d
        : 
-       : d estimate: 0.06149185 (negligible)
+       : d estimate: 0.127265 (negligible)
        : 95 percent confidence interval:
        :      lower      upper 
-       : -0.2174594  0.3404431 
+       : -0.8132466  1.0677765 
        : 
 
        #+BEGIN_SRC R :results output         
@@ -663,50 +723,50 @@
 
        Cohen's d
 
-       d estimate: -0.04891111 (negligible)
+       d estimate: 0.1823314 (negligible)
+       95 percent confidence interval:
+             lower       upper 
+       -0.09713285  0.46179566 
+
+
+       Cohen's d
+
+       d estimate: 0.2082857 (small)
        95 percent confidence interval:
             lower      upper 
-       -0.3278382  0.2300160 
+       -0.0713548  0.4879263 
 
 
        Cohen's d
 
-       d estimate: 0.3686105 (small)
-       95 percent confidence interval:
-            lower      upper 
-       0.08736675 0.64985423 
-
-
-       Cohen's d
-
-       d estimate: 0.6426659 (medium)
-       95 percent confidence interval:
-           lower     upper 
-       0.3566720 0.9286597 
-
-
-       Cohen's d
-
-       d estimate: 0.9304306 (large)
-       95 percent confidence interval:
-           lower     upper 
-       0.6368433 1.2240179 
-
-
-       Cohen's d
-
-       d estimate: 0.9299423 (large)
+       d estimate: 0.590383 (medium)
        95 percent confidence interval:
           lower    upper 
-       0.636370 1.223515 
+       0.305487 0.875279 
 
 
        Cohen's d
 
-       d estimate: 2.070235 (large)
+       d estimate: 0.7033538 (medium)
+       95 percent confidence interval:
+           lower     upper 
+       0.4159749 0.9907328 
+
+
+       Cohen's d
+
+       d estimate: 0.914668 (large)
+       95 percent confidence interval:
+           lower     upper 
+       0.6215627 1.2077734 
+
+
+       Cohen's d
+
+       d estimate: 1.911921 (large)
        95 percent confidence interval:
           lower    upper 
-       1.724627 2.415843 
+       1.575297 2.248545 
 
        #+end_example
 
@@ -730,58 +790,58 @@
 
      Cohen's d
 
-     d estimate: -0.08410286 (negligible)
+     d estimate: -0.07469197 (negligible)
      95 percent confidence interval:
           lower      upper 
-     -0.3631115  0.1949058 
+     -0.3536746  0.2042906 
 
 
      Cohen's d
 
-     d estimate: -0.0101637 (negligible)
+     d estimate: 0.1354615 (negligible)
      95 percent confidence interval:
           lower      upper 
-     -0.2890509  0.2687235 
+     -0.1437436  0.4146665 
 
 
      Cohen's d
 
-     d estimate: 0.1718491 (negligible)
+     d estimate: 0.06307408 (negligible)
      95 percent confidence interval:
           lower      upper 
-     -0.1075505  0.4512488 
+     -0.2158806  0.3420288 
 
 
      Cohen's d
 
-     d estimate: 0.4339936 (small)
+     d estimate: 0.469411 (small)
      95 percent confidence interval:
          lower     upper 
-     0.1518443 0.7161429 
+     0.1867109 0.7521110 
 
 
      Cohen's d
 
-     d estimate: 1.155239 (large)
+     d estimate: 0.9221753 (large)
      95 percent confidence interval:
          lower     upper 
-     0.8539884 1.4564899 
+     0.6288413 1.2155093 
 
 
      Cohen's d
 
-     d estimate: 1.443063 (large)
+     d estimate: 1.587224 (large)
      95 percent confidence interval:
         lower    upper 
-     1.129978 1.756149 
+     1.267427 1.907020 
 
 
      Cohen's d
 
-     d estimate: 2.416227 (large)
+     d estimate: 2.21872 (large)
      95 percent confidence interval:
         lower    upper 
-     2.049435 2.783019 
+     1.864268 2.573172 
 
 
      Cohen's d
@@ -801,10 +861,10 @@
 *** In R    
      #+BEGIN_SRC R :results output         
      library(effsize)
-     cliff.delta( runif(100,0.001), runif(100))
-     cliff.delta( runif(100,0.01), runif(100))
-     cliff.delta( runif(100,0.1), runif(100))
-     cliff.delta( runif(100,0.5), runif(100))
+     cliff.delta( runif(1000,0.001), runif(100))
+     cliff.delta( runif(1000,0.01), runif(100))
+     cliff.delta( runif(1000,0.1), runif(100))
+     cliff.delta( runif(1000,0.5), runif(100))
      #+END_SRC
 
      #+RESULTS:
@@ -812,34 +872,34 @@
 
      Cliff's Delta
 
-     delta estimate: 0.11 (negligible)
+     delta estimate: -0.03388 (negligible)
      95 percent confidence interval:
            lower       upper 
-     -0.05021268  0.26469345 
+     -0.15883656  0.09214484 
 
 
      Cliff's Delta
 
-     delta estimate: 0.0584 (negligible)
+     delta estimate: -0.01168 (negligible)
      95 percent confidence interval:
-           lower       upper 
-     -0.09964357  0.21356942 
+          lower      upper 
+     -0.1316490  0.1086262 
 
 
      Cliff's Delta
 
-     delta estimate: 0.0638 (negligible)
+     delta estimate: 0.05602 (negligible)
      95 percent confidence interval:
            lower       upper 
-     -0.09704059  0.22139305 
+     -0.07159429  0.18182981 
 
 
      Cliff's Delta
 
-     delta estimate: 0.5578 (large)
+     delta estimate: 0.51116 (large)
      95 percent confidence interval:
          lower     upper 
-     0.4077179 0.6785364 
+     0.3747556 0.6259039 
 
      #+end_example
 
@@ -908,22 +968,48 @@
         - Why not the confidence interval?
         - R quantile will sort and clip for us
         - just return the min and max of the middle X % of the distribution
+** Bootstrap choices: Number of samples Samples
+  - Bootstrapping is sampling a lot.
+    - massive amounts of random sampling without replacement of a sample
+  - It is suggested that you have a sample size of 599 or more.
+    Davidson R, MacKinnon JG. Bootstrap tests: How many bootstraps?. Econometric Reviews. 2000 Jan 1;19(1):55-68.
+    https://www.econstor.eu/bitstream/10419/67820/1/587473266.pdf
+  - Sampling to the size of the sample if it is larger than 599 is fine too.
+    Larger samples lead typically to more power / better estimates.
+** Number of Iterations
+  - it is recommended to sample more than 1000 times, 10k times seems to saturate.
+    Davidson R, MacKinnon JG. Bootstrap tests: How many bootstraps?. Econometric Reviews. 2000 Jan 1;19(1):55-68.
+    https://www.econstor.eu/bitstream/10419/67820/1/587473266.pdf
+
+*** R setup in org
+#+BEGIN_SRC lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((R . t)))
+#+END_SRC
+
 *** R code
-    #+BEGIN_SRC R
+  #+BEGIN_SRC R :results output
+    B=100
     N=100
     alpha = 0.05
-    data = rnorm(N)
+    data = rnorm(B)
     mean(data)
-    mean(sample(data,N,replace=TRUE))
-    booted <- sapply(c(1:N), function(i) { mean(sample(data,N,replace=TRUE)) })
+    mean(sample(data,B,replace=TRUE))
+    booted <- sapply(c(1:N), function(i) { mean(sample(data,B,replace=TRUE)) })
     mean(booted)
     summary(booted)
     quantile(booted,c(alpha/2,1.0 - alpha/2))
-    #+END_SRC R
+  #+END_SRC
 
-    #+RESULTS:
-    | -0.0943985543925813 |
-    |   0.247765366599378 |
+  #+RESULTS:
+  : [1] -0.1656526
+  : [1] -0.1780562
+  : [1] -0.1663943
+  :    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  : -0.3833 -0.2246 -0.1500 -0.1664 -0.1006  0.0144 
+  :        2.5%       97.5% 
+  : -0.35476243 -0.01557738 
 
 *** R Run
 #+BEGIN_EXAMPLE
@@ -966,23 +1052,24 @@
 *** R code
 #+BEGIN_SRC R
     N=100
+    B=100
     alpha = 0.05
-    data1 = rnorm(N)
-    data2 = rnorm(N,mean=0.5)
+    data1 = rnorm(B)
+    data2 = rnorm(B,mean=0.5)
     mean(data1)
     mean(data2)
     mean(data1) -  mean(data2)    
     booted <- sapply(c(1:N), function(i) { 
-          mean( sample(data1,N,replace=TRUE) ) - 
-          mean( sample(data2,N,replace=TRUE)  ) })
+          mean( sample(data1,B,replace=TRUE) ) - 
+          mean( sample(data2,B,replace=TRUE)  ) })
     mean(booted)
     summary(booted)
     quantile(booted,c(alpha/2,1.0 - alpha/2))
 #+END_SRC
 
 #+RESULTS:
-|  -0.557460881832913 |
-| -0.0929590855864357 |
+| -0.770281661714806 |
+| -0.267706198336352 |
 
 *** R Run
 #+BEGIN_EXAMPLE
@@ -1127,7 +1214,7 @@
    We don't have to use averages.
    We can use medians or whatever other statistic you like
 *** R code for difference of skews
-#+BEGIN_SRC R
+#+BEGIN_SRC R :results output
     # difference of skews
     # install.packages("moments")
     library(moments)
@@ -1143,6 +1230,17 @@
     summary(booted)
     quantile(booted,c(alpha/2,1.0 - alpha/2))
 #+END_SRC
+
+#+RESULTS:
+: [1] 0.47652
+: [1] 0.04601034
+: [1] 0.4305097
+: [1] 0.3777451
+:    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+: -0.4822  0.1628  0.3932  0.3777  0.5942  1.0525 
+:       2.5%      97.5% 
+: -0.2830958  0.9888581 
+
 *** Results
 #+BEGIN_EXAMPLE
 >     # difference of skews
