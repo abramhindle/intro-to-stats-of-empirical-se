@@ -7,7 +7,7 @@
    - We have many choices for an output
    - Average rank isn't meaningful or interpretable when you have long lists.
 ** MRR
-   - average(1/ranks)
+   - MRR = average(1/ranks)
      - where ranks are a vector of ranks of right answer for query.
      - where 1/0 is defined as 0 for reciprocal rank.
      - 0 rank is used if something is missing from the results
@@ -49,14 +49,16 @@ print(apply_MRR([0,1,2,3,4,5]))
 print(apply_MRR([0,0,0,0,1]))
 print(apply_MRR(numpy.random.random_integers(0,20,size=(20,))))
 
+
+query_results = [ 
+  (["teapot","sandwich","carp"],1),# Query: I'm a little ______
+  (["nova","star","carp"],2), # twinkle twinkle little _____
+  (["rootbeer","coffee","textiles","rayon","wool"],5),#ba ba black sheep have you ___
+]
+ranks = [rank for res,rank in query_results]
+print(apply_MRR( ranks ))
+
 #+END_SRC
 
 #+RESULTS:
-: ([1, 1, 1, 1], 1.0)
-: ([2, 2, 2, 2], 0.5)
-: ([3, 3, 3, 3], 0.3333333333333333)
-: ([0, 1, 2, 3, 4, 5], 0.16666666666666666)
-: ([0, 0, 0, 0, 1], 0.2)
-: (array([18, 16,  8,  8,  1,  2, 10, 15, 16, 19, 20, 10, 17, 13,  7, 12,  9,
-:         0, 14,  2]), 0.16721652831172956)
    

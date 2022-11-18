@@ -1,7 +1,8 @@
 data <- c()
 data$x <- c(1:10)
-data$y <- runif(10) + 2*(data$x + rnorm(10))
-lmfit <- lm( y ~ x , data = data)
+data$z <- runif(10)
+data$y <- runif(10) + 2*(data$x + rnorm(10)) + 0.00001*data$z
+lmfit <- lm( y ~ x + z , data = data)
 plot(data)
 lines(lmfit$fitted.values)
 summary(lmfit)
@@ -19,6 +20,12 @@ data$y <- runif(10) + 2*(data$x + rnorm(10))
           - 3  *(data$z + rnorm(10))
           + 5  *(data$u + rnorm(10))
           - 0.1*(data$v + rnorm(10))
+data$y <- runif(10) + 2*(data$x) + 
+          - 3  *(data$z)
+          + 5  *(data$u)
+          - 0.1*(data$v)
+
+
 lmfit <- lm( y ~ x , data = data)
 summary(lmfit)
 AIC(lmfit)

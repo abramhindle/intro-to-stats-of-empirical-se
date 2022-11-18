@@ -12,6 +12,7 @@ print("Generate some columns of independent variables")
 data = np.random.random((n,ivars))
 print("data.shape ",data.shape)
 X[:,1:(1+ivars)] = data
+
 print("X.shape ",X.shape)
 print("Now X has a column of ones and data in the rest")
 noise = 0.1 * np.random.random((n,1))
@@ -30,7 +31,7 @@ seaborn.pairplot(dfX,hue='ry')
 plt.show()
 
 print("Now we want to OLS it!")
-print("B = (X' X)^-1 * (X' * Y)")
+print("B = (X' X)^-1 * (X' * Y)") # 
 Xt = np.transpose(X)
 B = np.matmul( np.linalg.inv(np.matmul(Xt,X)), np.matmul(Xt,Y))
 print("B.shape", B.shape)
