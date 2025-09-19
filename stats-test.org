@@ -37,37 +37,37 @@
                  Welch Two Sample t-test
 
          data:  rnorm(10) and rnorm(1000)
-         t = 1.0666, df = 9.1232, p-value = 0.3135
+         t = -1.1333, df = 9.1282, p-value = 0.286
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          -0.447979  1.250470
+          -1.2942206  0.4290484
          sample estimates:
-          mean of x  mean of y 
-          0.3884415 -0.0128042 
+           mean of x   mean of y 
+         -0.49281084 -0.06022472 
 
 
                  Welch Two Sample t-test
 
          data:  runif(100) and rnorm(100)
-         t = 6.1873, df = 117.83, p-value = 9.154e-09
+         t = 5.509, df = 118.53, p-value = 2.132e-07
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          0.4197865 0.8149836
+          0.3337375 0.7082838
          sample estimates:
-           mean of x   mean of y 
-          0.51852805 -0.09885699 
+         mean of x mean of y 
+         0.5312737 0.0102630 
 
 
                  Welch Two Sample t-test
 
          data:  rnorm(100, 1) and rnorm(100)
-         t = 7.5082, df = 194.73, p-value = 2.102e-12
+         t = 8.5901, df = 188.9, p-value = 3.213e-15
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          0.766901 1.313322
+          0.9000211 1.4365920
          sample estimates:
-          mean of x  mean of y 
-          0.9117352 -0.1283761 
+           mean of x   mean of y 
+          1.14613689 -0.02216966 
 
          #+end_example
 

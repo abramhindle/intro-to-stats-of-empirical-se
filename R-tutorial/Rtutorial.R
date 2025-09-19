@@ -11,8 +11,8 @@ if ( x >= 0 ) { print("x >= 0") } else { print("x < 0") }
 for (x in 1:10) { print(x) }
 
 # map
-sapply(1:10, function(x) { x > 5 })
-sapply(runif(10), function(x) { x > 0.5 })
+summary(sapply(1:10, function(x) { x > 5 }))
+summary(sapply(runif(10), function(x) { x > 0.5 }))
 
 
 # Vectors in R
@@ -92,7 +92,7 @@ kurtosis(x)
 
 # get help
 help(summary)
-help(??kurtosis)
+help('?kurtosis')
 
 v <- read.csv("Author_NFRs.csv", header=T)
 install.packages("vioplot")
