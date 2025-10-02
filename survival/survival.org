@@ -87,14 +87,34 @@ summary(runif(100))
 :     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 : 0.004994 0.242160 0.513268 0.494059 0.750613 0.975153
 
-#+BEGIN_SRC R :results output graphics :file test.png
+#+BEGIN_SRC R :results output graphics :file test5.png
   library("ggplot2")
   ggplot(iris, aes(x = Sepal.Width, y = Sepal.Length, color = Species)) +
   geom_point()
 #+END_SRC
 
 #+RESULTS:
-[[file:test.png]]
+
+
+    #+BEGIN_SRC R :results graphics file :file "my_plot.png" :exports results :width 600 :height 400
+    library(ggplot2)
+    data <- data.frame(x = 1:10, y = (1:10)^2)
+    ggplot(data, aes(x, y)) + geom_point() + labs(title = "My Inline Plot")
+    #+END_SRC
+
+    #+RESULTS:
+    [[file:my_plot.png]]
+    file:my_plot.png
+
+#+BEGIN_SRC R :results output graphics file :file test3.png :width 1000 :heigh 1000
+    plot(1:4, 1:4, type='p')
+    abline(h=1,lty=2)
+    abline(v=1.5)
+#+END_SRC
+
+#+RESULTS:
+[[file:test3.png]]
+
 
 
 
@@ -169,7 +189,9 @@ maint[maint$status==0,]
 
 You can plot the curve and the confidence interval
 
-#+BEGIN_SRC R :results output graphics :file Surv.png :width 1200 :height 700
+
+
+#+BEGIN_SRC R :results output graphics file :file Surv.png :width 1200 :height 700
 maint <- aml[aml$x=="Maintained",]
 plot(Surv(maint$time, maint$status))
 #+END_SRC
@@ -178,7 +200,7 @@ plot(Surv(maint$time, maint$status))
 [[file:Surv.png]]
 So what does it look like with multiple factors?
 
-#+BEGIN_SRC R :results output graphics :file leukemia.png :width 1200 :height 700
+#+BEGIN_SRC R :results output graphics file :file leukemia.png :width 1200 :height 700
 leukemia.surv <- survfit(Surv(time, status) ~ x, data = aml)
 plot(leukemia.surv, lty = 2:3)
 legend(100, .9, c("Maintenance", "No Maintenance"), lty = 2:3)
@@ -268,7 +290,7 @@ We're going to invent a dataset where minor revision bugs last longer.
 
 They are fixed later. Which means they survive longer.
 
-#+BEGIN_SRC R :results output graphics :file RandBugs.png :width 1200 :height 700
+#+BEGIN_SRC R :results output graphics file :file RandBugs.png :width 1200 :height 700
 bugs <- c()
 # bug survival
 bugs$time   <- sort(runif(100)*100)
@@ -289,16 +311,15 @@ plot(Surv(bugs$time,bugs$status))
 
 #+RESULTS:
 [[file:RandBugs.png]]
-#+BEGIN_SRC R :results output graphics :file SurvFitRandBugs.png :width 1200 :height 700
+
+
+#+BEGIN_SRC R :results output graphics file :file SurvFitRandBugs.png :width 1200 :height 700
 plot(survfit(Surv(time,status) ~ factor(minor), data = bugs),lty=c(1:2))
 legend(100, .9, c("Not minor", "Minor"), lty = 1:2)
 #+END_SRC
 
 #+RESULTS:
 [[file:SurvFitRandBugs.png]]
-#+BEGIN_SRC R
-summary(survfit(Surv(time,status) ~ factor(minor), data = bugs))
-#+END_SRC
 
 #+RESULTS:
 #+begin_example
@@ -430,6 +451,7 @@ Call: survfit(formula = Surv(time, status) ~ factor(minor), data = bugs)
 
 Survfit basically calculates confidence intervals of survival at each point
 
+What does this mean in survival analysis:
 
 *** Cox Proportional-Hazards Model
 
@@ -450,28 +472,28 @@ Call:
 coxph(formula = Surv(time, status) ~ factor(minor) + factor(noise), 
     data = bugs)
 
-  n= 200, number of events= 117 
+  n= 200, number of events= 103 
 
                   coef exp(coef) se(coef)      z Pr(>|z|)    
-factor(minor)1 -1.3353    0.2631   0.2058 -6.488  8.7e-11 ***
-factor(noise)1  0.3013    1.3517   0.1892  1.593    0.111    
+factor(minor)1 -0.9630    0.3817   0.2182 -4.413 1.02e-05 ***
+factor(noise)1  0.0292    1.0296   0.1999  0.146    0.884    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
                exp(coef) exp(-coef) lower .95 upper .95
-factor(minor)1    0.2631     3.8010    0.1758    0.3938
-factor(noise)1    1.3517     0.7398    0.9329    1.9585
+factor(minor)1    0.3817     2.6197    0.2489    0.5855
+factor(noise)1    1.0296     0.9712    0.6959    1.5234
 
-Concordance= 0.642  (se = 0.028 )
-Likelihood ratio test= 38.58  on 2 df,   p=4e-09
-Wald test            = 42.77  on 2 df,   p=5e-10
-Score (logrank) test = 48.48  on 2 df,   p=3e-11
- factor(minor)     pmm     std               test chisq df        Pr
-             0 2.66201 0.38993      factor(minor) 21.27  1 3.984e-06
-             1 0.70034 0.03760
- factor(noise)    pmm     std               test chisq df     Pr
-             0 1.0358 0.12565      factor(noise) 2.658  1 0.1031
-             1 1.4001 0.14585
+Concordance= 0.589  (se = 0.031 )
+Likelihood ratio test= 17.97  on 2 df,   p=1e-04
+Wald test            = 19.75  on 2 df,   p=5e-05
+Score (logrank) test = 21.21  on 2 df,   p=2e-05
+ factor(minor)    pmm      std               test chisq df      Pr
+             0 1.0141 0.097743      factor(minor) 34.76  1 < 1e-08
+             1 0.3871 0.089533
+ factor(noise)     pmm     std               test   chisq df     Pr
+             0 0.55484 0.06022      factor(noise) 0.02004  1 0.8874
+             1 0.57128 0.13624
 #+end_example
 
 #+BEGIN_SRC R :results output graphics :file RandBugsCox.png :width 1200 :height 1200
@@ -484,7 +506,6 @@ legend(100, .9, c("Not minor", "Minor"), lty = 1:2)
 #+END_SRC
 
 #+RESULTS:
-[[file:RandBugsCox.png]]
 *** Pretty Plots with Survminer
 
 A pain to install (use docker?) https://rpkgs.datanovia.com/survminer/
@@ -503,10 +524,9 @@ library(survminer)
 #+END_SRC
 
 #+RESULTS:
-: Loading required package: ggplot2
-: Loading required package: ggpubr
+: Error in library(survminer) : there is no package called ‘survminer’
 
-#+BEGIN_SRC R :results output graphics :file SurvMinerRandBugsCox.png :width 1600 :height 700
+#+BEGIN_SRC R :results output graphics file :file SurvMinerRandBugsCox.png :width 1600 :height 700
 library(survival)
 library(survminer)
 fit <- survfit(Surv(time,status) ~ factor(minor), data = bugs)
@@ -518,7 +538,7 @@ ggsurvplot(fit, data = bugs)
 *** Better
 
 
-#+BEGIN_SRC R :results output graphics :file PrettySurvMinerRandBugsCox.png :width 1600 :height 700
+#+BEGIN_SRC R :results output graphics file :file PrettySurvMinerRandBugsCox.png :width 1600 :height 700
 library(survival)
 library(survminer)
 fit <- survfit(Surv(time,status) ~ factor(minor), data = bugs)

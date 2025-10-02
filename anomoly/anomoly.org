@@ -1,0 +1,198 @@
+#+TITLE: Anomaly Detection in Source Code Metrics
+#+AUTHOR: Your Name
+#+OPTIONS: toc:t
+#+PROPERTY: header-args:python :session :results output :exports both
+
+* Introduction
+In this notebook, we will explore *anomaly detection* using two popular unsupervised learning
+techniques from scikit-learn:
+
+- =IsolationForest= from ~sklearn.ensemble~
+- =LocalOutlierFactor= from ~sklearn.neighbors~
+
+We will simulate fake *source code metrics* (e.g., lines of code, cyclomatic complexity,
+nesting depth) for a number of files. Then we will inject some *outliers* representing
+"weird" or "suspicious" files, and see how both methods flag them.
+
+** org-mode
+
+#+BEGIN_SRC elisp
+(org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
+(setq org-babel-python-command "python3")
+#+END_SRC
+
+#+RESULTS:
+: python3
+
+#+BEGIN_SRC python :results output
+print("Hello, Org Babel!")
+#+END_SRC
+
+#+RESULTS:
+: Hello, Org Babel!
+
+
+* Setup
+#+begin_src python
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.ensemble import IsolationForest
+from sklearn.neighbors import LocalOutlierFactor
+import pandas as pd
+import random
+#+end_src
+
+#+RESULTS:
+: Python 3.10.12 (main, Aug 15 2025, 14:32:43) [GCC 11.4.0] on linux
+: Type "help", "copyright", "credits" or "license" for more information.
+: >>> python.el: native completion setup loaded
+
+* Generate Fake Source Code Metrics
+We’ll create synthetic feature vectors for files. Each file will have:
+- *Lines of Code (LOC)*
+- *Cyclomatic Complexity (CC)*
+- *Maximum Nesting Depth (ND)*
+
+Normal files will cluster in a reasonable range, while we’ll inject
+outliers with extreme values.
+
+#+begin_src python :results output 
+rng = np.random.default_rng(42)
+
+n_samples = 200
+n_outliers = 10
+
+# Normal data
+loc = rng.normal(loc=200, scale=50, size=n_samples)       # lines of code
+cc = rng.normal(loc=10, scale=3, size=n_samples)          # cyclomatic complexity
+nd = rng.normal(loc=4, scale=1, size=n_samples)           # nesting depth
+
+# Outliers: extreme LOC, CC, ND
+loc_out = rng.normal(loc=1000, scale=100, size=n_outliers)
+cc_out = rng.normal(loc=50, scale=10, size=n_outliers)
+nd_out = rng.normal(loc=15, scale=3, size=n_outliers)
+
+# Combine
+X = np.column_stack([np.concatenate([loc, loc_out]),
+                     np.concatenate([cc, cc_out]),
+                     np.concatenate([nd, nd_out])])
+
+labels = np.array([0]*n_samples + [1]*n_outliers)  # 0 = normal, 1 = injected outlier
+
+df = pd.DataFrame(X, columns=["LOC", "CyclomaticComplexity", "NestingDepth"])
+df["Outlier"] = labels
+print(df.head(10))
+print(df[df["Outlier"] > 0].head(10))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+LOC  CyclomaticComplexity  NestingDepth  Outlier
+0  215.235854             11.012724      3.820389        0
+1  148.000795             14.222446      4.196776        0
+2  237.522560             10.271755      4.820528        0
+3  247.028236             11.931816      3.606259        0
+4  102.448241              3.849484      4.521167        0
+5  134.891025              9.853845      3.734161        0
+6  206.392020              7.470309      3.882458        0
+7  184.187870              6.343561      4.829519        0
+8  199.159942              7.365543      2.006940        0
+9  157.347804              8.997630      2.703528        0
+             LOC  CyclomaticComplexity  NestingDepth  Outlier
+200  1051.541040             39.656919     13.678043        1
+201   942.246111             52.352761     15.096323        1
+202  1127.444722             35.762656     15.806740        1
+203   937.241246             54.463221     13.141002        1
+204   936.338472             41.934011     16.413409        1
+205  1054.113161             37.173653     13.399643        1
+206  1076.292648             57.138201     13.765085        1
+207  1044.809936             52.416445     19.087928        1
+208   831.440268             43.860232     11.878242        1
+209  1053.803444             64.511788      7.761659        1
+#+end_example
+
+
+* Visualize the Data
+Let's see how these features distribute. We'll look at pairwise scatter plots.
+
+#+begin_src python
+import seaborn as sns
+
+sns.pairplot(df, hue="Outlier", vars=["LOC", "CyclomaticComplexity", "NestingDepth"])
+plt.suptitle("Synthetic Source Code Metrics with Outliers", y=1.02)
+plt.show()
+#+end_src
+
+#+RESULTS:
+: Traceback (most recent call last):
+:   File "<stdin>", line 1, in <module>
+:   File "/tmp/babel-CA4IdF/python-R63GkA", line 1, in <module>
+:     import seaborn as sns
+: ModuleNotFoundError: No module named 'seaborn'
+
+* Isolation Forest
+=IsolationForest= works by isolating anomalies, since they are easier to separate from
+the majority of points.
+
+#+begin_src python
+iso = IsolationForest(contamination=n_outliers/(n_samples+n_outliers), random_state=42)
+y_pred_iso = iso.fit_predict(X)
+
+# Map sklearn's output (-1 = outlier, 1 = normal) to {0,1}
+y_pred_iso = (y_pred_iso == -1).astype(int)
+
+df["IsoForest"] = y_pred_iso
+
+pd.crosstab(df["Outlier"], df["IsoForest"], rownames=["True"], colnames=["Predicted"])
+#+end_src
+
+* Local Outlier Factor
+=LocalOutlierFactor= compares the local density of each sample to its neighbors.
+Points in sparse regions relative to neighbors are flagged as outliers.
+
+#+begin_src python
+lof = LocalOutlierFactor(n_neighbors=20, contamination=n_outliers/(n_samples+n_outliers))
+y_pred_lof = lof.fit_predict(X)
+
+# Map sklearn's output (-1 = outlier, 1 = normal) to {0,1}
+y_pred_lof = (y_pred_lof == -1).astype(int)
+
+df["LOF"] = y_pred_lof
+
+pd.crosstab(df["Outlier"], df["LOF"], rownames=["True"], colnames=["Predicted"])
+#+end_src
+
+* Compare Methods
+Now let’s see how the two approaches perform side by side.
+
+#+begin_src python
+print("Isolation Forest detected:", df["IsoForest"].sum(), "outliers")
+print("Local Outlier Factor detected:", df["LOF"].sum(), "outliers")
+
+# Visual comparison
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+scatter = axes[0].scatter(X[:,0], X[:,1], c=df["IsoForest"], cmap="coolwarm", edgecolor="k")
+axes[0].set_title("Isolation Forest Detection")
+axes[0].set_xlabel("LOC")
+axes[0].set_ylabel("Cyclomatic Complexity")
+
+scatter = axes[1].scatter(X[:,0], X[:,1], c=df["LOF"], cmap="coolwarm", edgecolor="k")
+axes[1].set_title("Local Outlier Factor Detection")
+axes[1].set_xlabel("LOC")
+axes[1].set_ylabel("Cyclomatic Complexity")
+
+plt.tight_layout()
+plt.show()
+#+end_src
+
+* Conclusion
+Both =IsolationForest= and =LocalOutlierFactor= can detect anomalies, but they differ
+in sensitivity and the assumptions they make about data distribution.
+
+- *Isolation Forest*: Great for high-dimensional, large datasets. It builds random partitions.
+- *Local Outlier Factor*: Relies on local density estimation, often more sensitive to
+  neighborhood structures.
+
+In practice, it’s often good to compare multiple methods when investigating anomalies
+in software metrics.
