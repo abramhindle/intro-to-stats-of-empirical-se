@@ -1,7 +1,7 @@
 #+TITLE: Survival Analysis
 #+PROPERTY: header-args:C             :exports both :eval yes :flags -std=c99 -pedantic -Wall -Wextra -ftrapv -ggdb3 :eval yes :results value verbatim
 #+PROPERTY: header-args:sh            :exports both :eval yes :results value verbatim
-#+PROPERTY: header-args:R             :exports both :eval yes :results output :session 
+#+PROPERTY: header-args:R             :exports both :eval yes :results output :session
 #+PROPERTY: header-args:shell         :exports both :eval yes :results value verbatim
 
 * Survival Analysis
@@ -60,7 +60,7 @@ Otherwise it is (c) 2020 Abram Hindle
 (setq org-redisplay-inline-images t)
 (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)   
 (add-hook 'org-mode-hook 'org-display-inline-images)   
-#+END_SRC
+
 
 #+RESULTS:
 | org-display-inline-images | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | #[0 \300\301\302\303\304$\207 [add-hook before-save-hook org-encrypt-entries nil t] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | turn-on-font-lock |
@@ -85,9 +85,25 @@ summary(runif(100))
 
 #+RESULTS:
 :     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-: 0.004994 0.242160 0.513268 0.494059 0.750613 0.975153
+: 0.001769 0.279685 0.509540 0.499254 0.720436 0.973900
 
-#+BEGIN_SRC R :results output graphics :file test.png
+#+BEGIN_SRC R :session
+summary(runif(100))
+#+END_SRC
+
+#+RESULTS:
+:     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+: 0.006468 0.265716 0.486299 0.505306 0.790021 0.997170
+
+#+BEGIN_SRC R :results output graphics file :file test2.png
+  plot(runif(100))
+#+END_SRC
+
+#+RESULTS:
+[[file:test2.png]]
+
+
+#+BEGIN_SRC R :results output graphics file :file test.png
   library("ggplot2")
   ggplot(iris, aes(x = Sepal.Width, y = Sepal.Length, color = Species)) +
   geom_point()
@@ -95,6 +111,7 @@ summary(runif(100))
 
 #+RESULTS:
 [[file:test.png]]
+
 
 
 
@@ -147,7 +164,8 @@ This is Leukemia survival data.
 
 *** Surv object 
 
-survfit will fit a model to a survival curve. Surv makes such a curve out of 2 variables, time and status.
+survfit will fit a model to a survival curve. Surv makes such a curve
+out of 2 variables, time and status.
 
 Status is either censoring or death. 0 for censor often, or 1 for death?
 
@@ -169,16 +187,18 @@ maint[maint$status==0,]
 
 You can plot the curve and the confidence interval
 
-#+BEGIN_SRC R :results output graphics :file Surv.png :width 1200 :height 700
+#+BEGIN_SRC R :results output graphics file :file Surv.png :width 1200 :height 700
 maint <- aml[aml$x=="Maintained",]
 plot(Surv(maint$time, maint$status))
 #+END_SRC
 
 #+RESULTS:
 [[file:Surv.png]]
+
+
 So what does it look like with multiple factors?
 
-#+BEGIN_SRC R :results output graphics :file leukemia.png :width 1200 :height 700
+#+BEGIN_SRC R :results output graphics file :file leukemia.png :width 1200 :height 700
 leukemia.surv <- survfit(Surv(time, status) ~ x, data = aml)
 plot(leukemia.surv, lty = 2:3)
 legend(100, .9, c("Maintenance", "No Maintenance"), lty = 2:3)
@@ -232,35 +252,43 @@ library(survival)
 bugs <- c()
 # time of bug fix
 bugs$time   <- c(10,10,10,20,20,30,40,50,60,70,80,90,100)
-# bugs$status <- c( 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0,  1)
+bugs$status <- c( 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0,  1)
 bugs <- data.frame(bugs)
 bugs
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-   time
-1    10
-2    10
-3    10
-4    20
-5    20
-6    30
-7    40
-8    50
-9    60
-10   70
-11   80
-12   90
-13  100
+   time status
+1    10      0
+2    10      0
+3    10      0
+4    20      0
+5    20      1
+6    30      0
+7    40      1
+8    50      0
+9    60      0
+10   70      1
+11   80      1
+12   90      0
+13  100      1
 #+end_example
 
-#+BEGIN_SRC R :results output graphics :file Bugs.png :width 1200 :height 700
+#+BEGIN_SRC R :results output graphics file :file Bugs_wo_censor.png :width 1200 :height 700
 plot(Surv(bugs$time))
 #+END_SRC
 
 #+RESULTS:
-[[file:Bugs.png]]
+[[file:Bugs_wo_censor.png]]
+
+#+BEGIN_SRC R :results output graphics file :file Bugs_w_censor.png :width 1200 :height 700
+plot(Surv(bugs$time,bugs$status))
+#+END_SRC
+
+#+RESULTS:
+[[file:Bugs_w_censor.png]]
+
 
 *** What about for a lot more bugs?
 
@@ -268,7 +296,7 @@ We're going to invent a dataset where minor revision bugs last longer.
 
 They are fixed later. Which means they survive longer.
 
-#+BEGIN_SRC R :results output graphics :file RandBugs.png :width 1200 :height 700
+#+BEGIN_SRC R :results output graphics file :file RandBugs.png :width 1200 :height 700
 bugs <- c()
 # bug survival
 bugs$time   <- sort(runif(100)*100)
@@ -289,7 +317,7 @@ plot(Surv(bugs$time,bugs$status))
 
 #+RESULTS:
 [[file:RandBugs.png]]
-#+BEGIN_SRC R :results output graphics :file SurvFitRandBugs.png :width 1200 :height 700
+#+BEGIN_SRC R :results output graphics file :file SurvFitRandBugs.png :width 1200 :height 700
 plot(survfit(Surv(time,status) ~ factor(minor), data = bugs),lty=c(1:2))
 legend(100, .9, c("Not minor", "Minor"), lty = 1:2)
 #+END_SRC
@@ -306,126 +334,108 @@ Call: survfit(formula = Surv(time, status) ~ factor(minor), data = bugs)
 
                 factor(minor)=0 
   time n.risk n.event survival std.err lower 95% CI upper 95% CI
-  1.02     55       1   0.9818  0.0180      0.94714        1.000
-  1.99     54       1   0.9636  0.0252      0.91541        1.000
-  8.42     53       1   0.9455  0.0306      0.88730        1.000
- 12.05     51       1   0.9269  0.0352      0.86045        0.999
- 14.62     49       1   0.9080  0.0392      0.83428        0.988
- 15.74     48       1   0.8891  0.0427      0.80916        0.977
- 15.96     47       1   0.8702  0.0458      0.78485        0.965
- 16.34     46       1   0.8512  0.0486      0.76119        0.952
- 17.43     45       1   0.8323  0.0510      0.73808        0.939
- 17.78     44       1   0.8134  0.0533      0.71543        0.925
- 18.03     43       1   0.7945  0.0553      0.69320        0.911
- 18.80     42       1   0.7756  0.0571      0.67134        0.896
- 19.67     41       1   0.7567  0.0588      0.64982        0.881
- 20.45     40       1   0.7377  0.0603      0.62859        0.866
- 21.67     39       1   0.7188  0.0616      0.60766        0.850
- 23.31     38       1   0.6999  0.0628      0.58699        0.835
- 24.86     36       1   0.6805  0.0640      0.56587        0.818
- 24.86     35       1   0.6610  0.0651      0.54502        0.802
- 25.54     34       1   0.6416  0.0660      0.52442        0.785
- 26.78     33       1   0.6221  0.0668      0.50406        0.768
- 27.55     31       1   0.6021  0.0676      0.48315        0.750
- 30.12     28       1   0.5806  0.0685      0.46068        0.732
- 30.13     27       1   0.5591  0.0693      0.43852        0.713
- 30.21     26       1   0.5376  0.0699      0.41668        0.694
- 35.18     25       1   0.5161  0.0703      0.39513        0.674
- 35.98     23       1   0.4936  0.0707      0.37275        0.654
- 37.39     22       1   0.4712  0.0710      0.35071        0.633
- 43.59     21       1   0.4488  0.0711      0.32900        0.612
- 47.97     19       1   0.4251  0.0711      0.30625        0.590
- 55.58     17       1   0.4001  0.0712      0.28229        0.567
- 67.90     14       1   0.3715  0.0716      0.25462        0.542
- 70.01     13       1   0.3430  0.0716      0.22779        0.516
- 70.10     12       1   0.3144  0.0711      0.20180        0.490
- 71.38     11       1   0.2858  0.0702      0.17666        0.462
- 73.57     10       1   0.2572  0.0687      0.15238        0.434
- 74.88      9       1   0.2286  0.0668      0.12901        0.405
- 82.36      8       1   0.2001  0.0642      0.10662        0.375
- 83.19      7       1   0.1715  0.0611      0.08530        0.345
- 83.55      6       1   0.1429  0.0572      0.06521        0.313
- 88.82      5       1   0.1143  0.0524      0.04654        0.281
- 90.96      4       1   0.0857  0.0465      0.02965        0.248
- 94.71      2       1   0.0429  0.0382      0.00748        0.246
- 94.74      1       1   0.0000     NaN           NA           NA
+  3.90     53       1   0.9811  0.0187      0.94518        1.000
+  4.74     52       1   0.9623  0.0262      0.91231        1.000
+  8.39     51       1   0.9434  0.0317      0.88319        1.000
+  9.95     49       1   0.9241  0.0365      0.85536        0.998
+ 13.67     46       1   0.9041  0.0408      0.82746        0.988
+ 15.63     44       1   0.8835  0.0448      0.79996        0.976
+ 18.61     42       1   0.8625  0.0484      0.77263        0.963
+ 20.29     41       1   0.8414  0.0516      0.74616        0.949
+ 24.38     40       1   0.8204  0.0544      0.72038        0.934
+ 25.69     39       1   0.7994  0.0569      0.69519        0.919
+ 27.53     37       1   0.7778  0.0594      0.66969        0.903
+ 35.81     35       1   0.7555  0.0617      0.64381        0.887
+ 37.21     34       1   0.7333  0.0637      0.61843        0.870
+ 38.80     33       1   0.7111  0.0656      0.59351        0.852
+ 46.64     30       1   0.6874  0.0675      0.56698        0.833
+ 47.33     29       1   0.6637  0.0692      0.54095        0.814
+ 50.56     27       1   0.6391  0.0709      0.51420        0.794
+ 52.25     26       1   0.6145  0.0723      0.48795        0.774
+ 52.56     25       1   0.5899  0.0735      0.46215        0.753
+ 55.59     24       1   0.5654  0.0744      0.43680        0.732
+ 58.62     22       1   0.5397  0.0753      0.41048        0.710
+ 65.39     18       1   0.5097  0.0769      0.37922        0.685
+ 66.35     17       1   0.4797  0.0780      0.34880        0.660
+ 67.53     16       1   0.4497  0.0787      0.31918        0.634
+ 72.51     14       1   0.4176  0.0793      0.28776        0.606
+ 75.08     13       1   0.3855  0.0795      0.25734        0.577
+ 75.14     12       1   0.3534  0.0791      0.22788        0.548
+ 79.70      9       1   0.3141  0.0794      0.19132        0.516
+ 83.96      8       1   0.2748  0.0786      0.15688        0.481
+ 88.03      7       1   0.2356  0.0766      0.12458        0.445
+ 88.19      6       1   0.1963  0.0732      0.09454        0.408
+ 90.21      5       1   0.1570  0.0683      0.06699        0.368
+ 90.80      3       1   0.1047  0.0624      0.03253        0.337
+ 92.80      2       1   0.0523  0.0484      0.00854        0.321
 
                 factor(minor)=1 
-   time n.risk n.event survival std.err lower 95% CI upper 95% CI
-   4.68    145       1   0.9931 0.00687       0.9797        1.000
-   4.73    144       1   0.9862 0.00969       0.9674        1.000
-   5.88    143       1   0.9793 0.01182       0.9564        1.000
-   9.47    141       1   0.9724 0.01363       0.9460        0.999
-  15.54    139       1   0.9654 0.01522       0.9360        0.996
-  16.41    138       1   0.9584 0.01664       0.9263        0.992
-  23.75    132       1   0.9511 0.01803       0.9164        0.987
-  25.71    131       1   0.9439 0.01930       0.9068        0.982
-  27.34    130       1   0.9366 0.02047       0.8973        0.978
-  32.90    128       1   0.9293 0.02158       0.8879        0.973
-  33.05    127       1   0.9220 0.02261       0.8787        0.967
-  33.77    126       1   0.9146 0.02359       0.8696        0.962
-  35.11    123       1   0.9072 0.02454       0.8604        0.957
-  35.31    121       1   0.8997 0.02546       0.8512        0.951
-  35.55    120       1   0.8922 0.02633       0.8421        0.945
-  35.56    119       1   0.8847 0.02715       0.8331        0.940
-  36.76    117       1   0.8772 0.02795       0.8240        0.934
-  38.54    116       1   0.8696 0.02872       0.8151        0.928
-  38.64    114       1   0.8620 0.02946       0.8061        0.922
-  39.35    113       1   0.8543 0.03017       0.7972        0.916
-  41.62    110       1   0.8466 0.03088       0.7882        0.909
-  42.60    108       1   0.8387 0.03157       0.7791        0.903
-  45.76    104       1   0.8307 0.03228       0.7697        0.896
-  45.98    103       1   0.8226 0.03296       0.7605        0.890
-  47.10    101       1   0.8145 0.03363       0.7511        0.883
-  47.67    100       1   0.8063 0.03426       0.7419        0.876
-  48.81     99       1   0.7982 0.03487       0.7327        0.870
-  50.65     94       1   0.7897 0.03552       0.7230        0.862
-  50.82     93       1   0.7812 0.03614       0.7135        0.855
-  51.28     91       1   0.7726 0.03675       0.7038        0.848
-  52.61     90       1   0.7640 0.03733       0.6942        0.841
-  56.78     87       1   0.7552 0.03792       0.6845        0.833
-  56.94     86       1   0.7465 0.03848       0.6747        0.826
-  57.48     84       1   0.7376 0.03903       0.6649        0.818
-  57.57     83       1   0.7287 0.03956       0.6551        0.810
-  57.82     82       1   0.7198 0.04007       0.6454        0.803
-  59.00     81       1   0.7109 0.04054       0.6357        0.795
-  63.82     79       1   0.7019 0.04102       0.6259        0.787
-  64.53     78       1   0.6929 0.04147       0.6162        0.779
-  64.89     77       1   0.6839 0.04189       0.6065        0.771
-  65.25     76       1   0.6749 0.04230       0.5969        0.763
-  66.46     75       1   0.6659 0.04268       0.5873        0.755
-  66.57     74       1   0.6569 0.04304       0.5777        0.747
-  71.78     70       1   0.6475 0.04344       0.5678        0.739
-  76.90     62       1   0.6371 0.04397       0.5565        0.729
-  77.09     61       1   0.6266 0.04448       0.5453        0.720
-  79.15     58       1   0.6158 0.04500       0.5337        0.711
-  79.23     57       1   0.6050 0.04549       0.5221        0.701
-  80.73     56       1   0.5942 0.04594       0.5107        0.691
-  82.54     52       1   0.5828 0.04646       0.4985        0.681
-  83.15     51       1   0.5714 0.04693       0.4864        0.671
-  83.42     50       1   0.5599 0.04737       0.4744        0.661
-  84.00     48       1   0.5483 0.04779       0.4622        0.650
-  85.29     47       1   0.5366 0.04818       0.4500        0.640
-  88.45     43       1   0.5241 0.04865       0.4370        0.629
-  88.90     42       1   0.5117 0.04906       0.4240        0.617
-  90.58     40       1   0.4989 0.04948       0.4107        0.606
-  90.74     39       1   0.4861 0.04983       0.3976        0.594
-  91.96     37       1   0.4729 0.05019       0.3841        0.582
-  94.36     34       1   0.4590 0.05060       0.3698        0.570
-  95.63     32       1   0.4447 0.05102       0.3551        0.557
-  96.75     30       1   0.4299 0.05142       0.3400        0.543
-  97.21     29       1   0.4150 0.05174       0.3251        0.530
-  99.47     27       1   0.3997 0.05206       0.3096        0.516
- 101.20     26       1   0.3843 0.05228       0.2944        0.502
- 103.81     23       1   0.3676 0.05261       0.2777        0.487
- 103.93     22       1   0.3509 0.05280       0.2613        0.471
- 107.28     17       1   0.3302 0.05358       0.2403        0.454
- 109.44     15       1   0.3082 0.05434       0.2182        0.435
- 120.37      9       1   0.2740 0.05810       0.1808        0.415
- 120.42      8       1   0.2397 0.06009       0.1467        0.392
- 129.56      4       1   0.1798 0.06874       0.0850        0.380
- 131.73      3       1   0.1199 0.06704       0.0400        0.359
- 132.23      2       1   0.0599 0.05403       0.0102        0.351
+    time n.risk n.event survival std.err lower 95% CI upper 95% CI
+   0.429    146       1    0.993 0.00683        0.980        1.000
+   3.294    145       1    0.986 0.00962        0.968        1.000
+  10.992    143       1    0.979 0.01177        0.957        1.000
+  11.865    140       1    0.972 0.01361        0.946        0.999
+  13.761    138       1    0.965 0.01522        0.936        0.996
+  14.672    136       1    0.958 0.01668        0.926        0.992
+  18.094    135       1    0.951 0.01801        0.917        0.987
+  19.635    133       1    0.944 0.01924        0.907        0.982
+  21.187    130       1    0.937 0.02042        0.898        0.978
+  21.978    129       1    0.929 0.02151        0.888        0.973
+  24.690    127       1    0.922 0.02255        0.879        0.967
+  25.437    126       1    0.915 0.02353        0.870        0.962
+  27.557    124       1    0.907 0.02447        0.861        0.957
+  28.658    123       1    0.900 0.02536        0.852        0.951
+  30.195    122       1    0.893 0.02620        0.843        0.946
+  30.865    120       1    0.885 0.02702        0.834        0.940
+  31.411    118       1    0.878 0.02781        0.825        0.934
+  31.579    117       1    0.870 0.02857        0.816        0.928
+  32.975    116       1    0.863 0.02929        0.807        0.922
+  33.244    115       1    0.855 0.02998        0.798        0.916
+  36.216    113       1    0.848 0.03066        0.790        0.910
+  41.636    109       1    0.840 0.03135        0.781        0.904
+  43.157    107       1    0.832 0.03202        0.772        0.897
+  43.428    106       1    0.824 0.03267        0.763        0.891
+  44.106    104       1    0.816 0.03330        0.754        0.884
+  45.285    102       1    0.808 0.03392        0.744        0.878
+  48.818    101       1    0.800 0.03452        0.735        0.871
+  50.273     99       1    0.792 0.03510        0.726        0.864
+  50.339     98       1    0.784 0.03566        0.717        0.857
+  53.780     94       1    0.776 0.03625        0.708        0.850
+  55.014     91       1    0.767 0.03684        0.698        0.843
+  55.691     90       1    0.759 0.03740        0.689        0.836
+  58.847     88       1    0.750 0.03796        0.679        0.828
+  59.343     87       1    0.741 0.03849        0.670        0.821
+  60.167     86       1    0.733 0.03899        0.660        0.813
+  61.404     81       1    0.724 0.03955        0.650        0.806
+  61.479     80       1    0.715 0.04008        0.640        0.798
+  61.726     78       1    0.706 0.04060        0.630        0.790
+  64.417     72       1    0.696 0.04120        0.620        0.781
+  65.929     70       1    0.686 0.04179        0.609        0.773
+  67.856     67       1    0.676 0.04240        0.597        0.764
+  70.537     66       1    0.665 0.04298        0.586        0.755
+  74.051     63       1    0.655 0.04357        0.575        0.746
+  77.425     60       1    0.644 0.04419        0.563        0.737
+  79.468     55       1    0.632 0.04491        0.550        0.727
+  79.876     54       1    0.621 0.04558        0.537        0.717
+  80.284     53       1    0.609 0.04620        0.525        0.706
+  83.131     50       1    0.597 0.04685        0.512        0.696
+  83.249     49       1    0.584 0.04745        0.498        0.685
+  83.311     48       1    0.572 0.04800        0.486        0.675
+  84.478     46       1    0.560 0.04854        0.472        0.664
+  85.067     45       1    0.547 0.04903        0.459        0.652
+  86.627     44       1    0.535 0.04947        0.446        0.641
+  86.853     43       1    0.523 0.04986        0.433        0.630
+  88.066     42       1    0.510 0.05020        0.421        0.619
+  88.463     40       1    0.497 0.05054        0.407        0.607
+  90.726     37       1    0.484 0.05093        0.394        0.595
+  92.881     32       1    0.469 0.05153        0.378        0.581
+  93.192     31       1    0.454 0.05204        0.362        0.568
+  95.365     28       1    0.437 0.05265        0.346        0.554
+ 102.459     23       1    0.418 0.05368        0.325        0.538
+ 109.431     17       1    0.394 0.05588        0.298        0.520
+ 115.655     11       1    0.358 0.06120        0.256        0.501
+ 124.915      8       1    0.313 0.06797        0.205        0.479
+ 129.675      6       1    0.261 0.07403        0.150        0.455
 #+end_example
 
 Survfit basically calculates confidence intervals of survival at each point
@@ -438,10 +448,12 @@ The PMM for minor should be lower than not minor. Because it is less risk. It le
 The PMM for noise should be near 1.
 
 #+BEGIN_SRC R
-fit <- coxph(Surv(time,status) ~ factor(minor) + factor(noise), data = bugs)
-summary(fit,rr.ci=TRUE)
-yates(fit, ~ minor, predict="risk") # hazard ratio
-yates(fit, ~ noise, predict="risk") # hazard ratio
+  fit <- coxph(Surv(time,status) ~ factor(minor) + factor(noise), data = bugs)
+  summary(fit,rr.ci=TRUE)
+  print("yates minor")
+  yates(fit, ~ minor, predict="risk") # hazard ratio
+  print("yates noise")
+  yates(fit, ~ noise, predict="risk") # hazard ratio
 #+END_SRC
 
 #+RESULTS:
@@ -450,31 +462,31 @@ Call:
 coxph(formula = Surv(time, status) ~ factor(minor) + factor(noise), 
     data = bugs)
 
-  n= 200, number of events= 117 
+  n= 200, number of events= 99 
 
                   coef exp(coef) se(coef)      z Pr(>|z|)    
-factor(minor)1 -1.3353    0.2631   0.2058 -6.488  8.7e-11 ***
-factor(noise)1  0.3013    1.3517   0.1892  1.593    0.111    
+factor(minor)1 -0.8958    0.4083   0.2190 -4.090 4.32e-05 ***
+factor(noise)1  0.2215    1.2479   0.2027  1.093    0.275    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
                exp(coef) exp(-coef) lower .95 upper .95
-factor(minor)1    0.2631     3.8010    0.1758    0.3938
-factor(noise)1    1.3517     0.7398    0.9329    1.9585
+factor(minor)1    0.4083     2.4492    0.2658    0.6272
+factor(noise)1    1.2479     0.8014    0.8388    1.8565
 
-Concordance= 0.642  (se = 0.028 )
-Likelihood ratio test= 38.58  on 2 df,   p=4e-09
-Wald test            = 42.77  on 2 df,   p=5e-10
-Score (logrank) test = 48.48  on 2 df,   p=3e-11
- factor(minor)     pmm     std               test chisq df        Pr
-             0 2.66201 0.38993      factor(minor) 21.27  1 3.984e-06
-             1 0.70034 0.03760
- factor(noise)    pmm     std               test chisq df     Pr
-             0 1.0358 0.12565      factor(noise) 2.658  1 0.1031
-             1 1.4001 0.14585
+Concordance= 0.59  (se = 0.032 )
+Likelihood ratio test= 15.88  on 2 df,   p=4e-04
+Wald test            = 17.37  on 2 df,   p=2e-04
+Score (logrank) test = 18.39  on 2 df,   p=1e-04
+ factor(minor)     pmm      std               test chisq df       Pr
+             0 1.94349 0.332405      factor(minor) 9.213  1 0.002403
+             1 0.79351 0.048865
+ factor(noise)     pmm     std               test  chisq df     Pr
+             0 0.98914 0.10636      factor(noise) 0.9587  1 0.3275
+             1 1.23434 0.16303
 #+end_example
 
-#+BEGIN_SRC R :results output graphics :file RandBugsCox.png :width 1200 :height 1200
+#+BEGIN_SRC R :results output graphics file :file RandBugsCox.png :width 1200 :height 1200
 fit <- coxph(Surv(time,status) ~ factor(minor) + factor(noise), data = bugs)
 par(mfrow=c(3,1))
 plot(cox.zph(fit)[1]) # plot minor
@@ -506,7 +518,7 @@ library(survminer)
 : Loading required package: ggplot2
 : Loading required package: ggpubr
 
-#+BEGIN_SRC R :results output graphics :file SurvMinerRandBugsCox.png :width 1600 :height 700
+#+BEGIN_SRC R :results output graphics file :file SurvMinerRandBugsCox.png :width 1600 :height 700
 library(survival)
 library(survminer)
 fit <- survfit(Surv(time,status) ~ factor(minor), data = bugs)
@@ -518,7 +530,7 @@ ggsurvplot(fit, data = bugs)
 *** Better
 
 
-#+BEGIN_SRC R :results output graphics :file PrettySurvMinerRandBugsCox.png :width 1600 :height 700
+#+BEGIN_SRC R :results output graphics file :file PrettySurvMinerRandBugsCox.png :width 1600 :height 700
 library(survival)
 library(survminer)
 fit <- survfit(Surv(time,status) ~ factor(minor), data = bugs)
