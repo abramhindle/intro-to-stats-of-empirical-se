@@ -1,5 +1,5 @@
 #+TITLE: Anomaly Detection in Source Code Metrics
-#+AUTHOR: Your Name
+#+AUTHOR: Abram Hindle
 #+OPTIONS: toc:t
 #+PROPERTY: header-args:python :session :results output :exports both
 
@@ -14,7 +14,31 @@ We will simulate fake *source code metrics* (e.g., lines of code, cyclomatic com
 nesting depth) for a number of files. Then we will inject some *outliers* representing
 "weird" or "suspicious" files, and see how both methods flag them.
 
-** org-mode
+** What is Isolation Forest
+
+Isolation Forest works by randomly selecting features and splitting
+data points to create a binary tree. Anomalies, being few and
+different, require fewer splits to isolate compared to normal
+instances, resulting in shorter paths in the tree. This structure
+helps identify outliers effectively in high-dimensional datasets.
+
+** What is LocalOutlierFactor?
+
+Local Outlier Factor (LOF) identifies anomalies by comparing the local
+density of data points. It calculates the density of a point relative
+to its neighbors. Points with significantly lower density compared to
+their neighbors are deemed outliers, effectively detecting local
+anomalies in the data distribution.
+
+** When should we use Isolation Forest and when should we use LocalOutlierFactor?
+
+Use Isolation Forest when dealing with high-dimensional data or when
+you expect a large number of anomalies, as it performs well in such
+scenarios. Opt for Local Outlier Factor when the data distribution has
+varying densities, as it effectively detects anomalies in localized
+regions.
+
+** set up org-mode
 
 #+BEGIN_SRC elisp
 (org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
@@ -32,7 +56,7 @@ print("Hello, Org Babel!")
 : Hello, Org Babel!
 
 
-* Setup
+** Setup in Python
 #+begin_src python
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,11 +71,12 @@ import random
 : Type "help", "copyright", "credits" or "license" for more information.
 : >>> python.el: native completion setup loaded
 
-* Generate Fake Source Code Metrics
+** Generate Fake Source Code Metrics
+
 We’ll create synthetic feature vectors for files. Each file will have:
-- *Lines of Code (LOC)*
-- *Cyclomatic Complexity (CC)*
-- *Maximum Nesting Depth (ND)*
+- *Lines of Code (LOC)* measures the total number of written lines in a file, indicating size.
+- *Cyclomatic Complexity (CC)* assesses code's complexity based on control flow.
+- *Maximum Nesting Depth (ND)* identifies the deepest code block nesting, reflecting code clarity.
 
 Normal files will cluster in a reasonable range, while we’ll inject
 outliers with extreme values.
@@ -62,6 +87,8 @@ rng = np.random.default_rng(42)
 n_samples = 200
 n_outliers = 10
 
+soft_outliers = True # turn this to true to make outliers closer to the original data
+
 # Normal data
 loc = rng.normal(loc=200, scale=50, size=n_samples)       # lines of code
 cc = rng.normal(loc=10, scale=3, size=n_samples)          # cyclomatic complexity
@@ -71,6 +98,20 @@ nd = rng.normal(loc=4, scale=1, size=n_samples)           # nesting depth
 loc_out = rng.normal(loc=1000, scale=100, size=n_outliers)
 cc_out = rng.normal(loc=50, scale=10, size=n_outliers)
 nd_out = rng.normal(loc=15, scale=3, size=n_outliers)
+
+if soft_outliers:
+    loc_out1 = rng.choice(loc,n_outliers)
+    cc_out1 = rng.choice(cc,n_outliers)
+    nd_out1 = rng.choice(nd,n_outliers)
+    
+    def bias_choose(l1,l2):
+        l = np.array([l1,l2])
+        return l[rng.choice([0,1,1],l1.shape[0]),np.arange(l1.shape[0])]
+    
+    loc_out = bias_choose(loc_out,loc_out1)
+    cc_out = bias_choose(cc_out,cc_out1)
+    nd_out = bias_choose(nd_out,nd_out1)
+
 
 # Combine
 X = np.column_stack([np.concatenate([loc, loc_out]),
@@ -99,21 +140,23 @@ LOC  CyclomaticComplexity  NestingDepth  Outlier
 8  199.159942              7.365543      2.006940        0
 9  157.347804              8.997630      2.703528        0
              LOC  CyclomaticComplexity  NestingDepth  Outlier
-200  1051.541040             39.656919     13.678043        1
-201   942.246111             52.352761     15.096323        1
-202  1127.444722             35.762656     15.806740        1
-203   937.241246             54.463221     13.141002        1
-204   936.338472             41.934011     16.413409        1
-205  1054.113161             37.173653     13.399643        1
-206  1076.292648             57.138201     13.765085        1
-207  1044.809936             52.416445     19.087928        1
-208   831.440268             43.860232     11.878242        1
-209  1053.803444             64.511788      7.761659        1
+200   153.319116             39.656919     13.678043        1
+201   942.246111              9.264166     15.096323        1
+202  1127.444722             15.196935      3.943217        1
+203   167.260615              3.989433     13.141002        1
+204   936.338472             41.934011      6.420415        1
+205   248.413918              9.512002     13.399643        1
+206   150.523094              6.350320     13.765085        1
+207   280.088945             52.416445      3.974137        1
+208   222.326559             43.860232      3.692917        1
+209   184.532673             10.159466      5.433215        1
 #+end_example
 
 
 * Visualize the Data
 Let's see how these features distribute. We'll look at pairwise scatter plots.
+
+Convert this t
 
 #+begin_src python
 import seaborn as sns
@@ -124,11 +167,6 @@ plt.show()
 #+end_src
 
 #+RESULTS:
-: Traceback (most recent call last):
-:   File "<stdin>", line 1, in <module>
-:   File "/tmp/babel-CA4IdF/python-R63GkA", line 1, in <module>
-:     import seaborn as sns
-: ModuleNotFoundError: No module named 'seaborn'
 
 * Isolation Forest
 =IsolationForest= works by isolating anomalies, since they are easier to separate from
@@ -143,8 +181,15 @@ y_pred_iso = (y_pred_iso == -1).astype(int)
 
 df["IsoForest"] = y_pred_iso
 
-pd.crosstab(df["Outlier"], df["IsoForest"], rownames=["True"], colnames=["Predicted"])
+x = pd.crosstab(df["Outlier"], df["IsoForest"], rownames=["True"], colnames=["Predicted"])
+print(x)
 #+end_src
+
+#+RESULTS:
+: Predicted    0  1
+: True             
+: 0          199  1
+: 1            1  9
 
 * Local Outlier Factor
 =LocalOutlierFactor= compares the local density of each sample to its neighbors.
@@ -159,8 +204,15 @@ y_pred_lof = (y_pred_lof == -1).astype(int)
 
 df["LOF"] = y_pred_lof
 
-pd.crosstab(df["Outlier"], df["LOF"], rownames=["True"], colnames=["Predicted"])
+x = pd.crosstab(df["Outlier"], df["LOF"], rownames=["True"], colnames=["Predicted"])
+print(x)
 #+end_src
+
+#+RESULTS:
+: Predicted    0  1
+: True             
+: 0          196  4
+: 1            4  6
 
 * Compare Methods
 Now let’s see how the two approaches perform side by side.
@@ -185,6 +237,10 @@ axes[1].set_ylabel("Cyclomatic Complexity")
 plt.tight_layout()
 plt.show()
 #+end_src
+
+#+RESULTS:
+: Isolation Forest detected: 10 outliers
+: Local Outlier Factor detected: 10 outliers
 
 * Conclusion
 Both =IsolationForest= and =LocalOutlierFactor= can detect anomalies, but they differ
