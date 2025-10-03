@@ -102,7 +102,6 @@ summary(runif(100))
 #+RESULTS:
 [[file:test2.png]]
 
-
 #+BEGIN_SRC R :results output graphics file :file test.png
   library("ggplot2")
   ggplot(iris, aes(x = Sepal.Width, y = Sepal.Length, color = Species)) +
@@ -110,7 +109,27 @@ summary(runif(100))
 #+END_SRC
 
 #+RESULTS:
-[[file:test.png]]
+
+
+    #+BEGIN_SRC R :results graphics file :file "my_plot.png" :exports results :width 600 :height 400
+    library(ggplot2)
+    data <- data.frame(x = 1:10, y = (1:10)^2)
+    ggplot(data, aes(x, y)) + geom_point() + labs(title = "My Inline Plot")
+    #+END_SRC
+
+    #+RESULTS:
+    [[file:my_plot.png]]
+    file:my_plot.png
+
+#+BEGIN_SRC R :results output graphics file :file test3.png :width 1000 :heigh 1000
+    plot(1:4, 1:4, type='p')
+    abline(h=1,lty=2)
+    abline(v=1.5)
+#+END_SRC
+
+#+RESULTS:
+[[file:test3.png]]
+
 
 
 
@@ -186,6 +205,7 @@ maint[maint$status==0,]
 *** Plotting Surv object
 
 You can plot the curve and the confidence interval
+
 
 #+BEGIN_SRC R :results output graphics file :file Surv.png :width 1200 :height 700
 maint <- aml[aml$x=="Maintained",]
@@ -317,6 +337,7 @@ plot(Surv(bugs$time,bugs$status))
 
 #+RESULTS:
 [[file:RandBugs.png]]
+
 #+BEGIN_SRC R :results output graphics file :file SurvFitRandBugs.png :width 1200 :height 700
 plot(survfit(Surv(time,status) ~ factor(minor), data = bugs),lty=c(1:2))
 legend(100, .9, c("Not minor", "Minor"), lty = 1:2)
@@ -324,9 +345,6 @@ legend(100, .9, c("Not minor", "Minor"), lty = 1:2)
 
 #+RESULTS:
 [[file:SurvFitRandBugs.png]]
-#+BEGIN_SRC R
-summary(survfit(Surv(time,status) ~ factor(minor), data = bugs))
-#+END_SRC
 
 #+RESULTS:
 #+begin_example
@@ -440,6 +458,7 @@ Call: survfit(formula = Surv(time, status) ~ factor(minor), data = bugs)
 
 Survfit basically calculates confidence intervals of survival at each point
 
+What does this mean in survival analysis:
 
 *** Cox Proportional-Hazards Model
 
@@ -471,6 +490,7 @@ factor(noise)1  0.2215    1.2479   0.2027  1.093    0.275
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
                exp(coef) exp(-coef) lower .95 upper .95
+
 factor(minor)1    0.4083     2.4492    0.2658    0.6272
 factor(noise)1    1.2479     0.8014    0.8388    1.8565
 
@@ -496,7 +516,6 @@ legend(100, .9, c("Not minor", "Minor"), lty = 1:2)
 #+END_SRC
 
 #+RESULTS:
-[[file:RandBugsCox.png]]
 *** Pretty Plots with Survminer
 
 A pain to install (use docker?) https://rpkgs.datanovia.com/survminer/
@@ -515,8 +534,7 @@ library(survminer)
 #+END_SRC
 
 #+RESULTS:
-: Loading required package: ggplot2
-: Loading required package: ggpubr
+: Error in library(survminer) : there is no package called ‘survminer’
 
 #+BEGIN_SRC R :results output graphics file :file SurvMinerRandBugsCox.png :width 1600 :height 700
 library(survival)

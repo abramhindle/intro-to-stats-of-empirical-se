@@ -968,15 +968,17 @@
     - Often we can use confidence intervals of the difference of means
       to determine if something is statistically significantly
       different or similar.
-    - Instead of just generating a p-value we can under the range.
+    - Instead of just generating a p-value we can estimate the range.
     - if the 95% confidence interval of mean(x) - mean(y) does not
       cross 0 it suggests that the distributions are significantly different.
       - e.g. 95% CI of [-0.5,-0.1] implies that 95% of the time
         difference of means between x and y is -0.5 to -0.1.
         - statistically significant difference!
+        - implies mean(y) > mean(x) (most of the time)
       - e.g. 95% CI of [0.1,0.5] implies that 95% of the time
         difference of means between x and y is 0.1 to 0.5
         - statistically significant difference!
+        - implies mean(x) > mean(y) (most of the time)
       - e.g. 95% CI of [-0.5,0.5] implies that 95% of the time
         difference of means between x and y is -0.5 to 0.5
         - not a statistically significant difference!
@@ -992,7 +994,7 @@
   - Bootstrapping is sampling a lot.
     - massive amounts of random sampling without replacement of a sample
   - What if the best information we have is the current sample?
-  - Boostrapping lets talk about statistics about statistics
+  - Boostrapping lets us talk about statistics about statistics
   - We can build confidence intervals with bootstrapping.
 ** Bootstrapping a mean example
   - we sampled 100 elements
@@ -1034,26 +1036,36 @@
 
 *** R code
   #+BEGIN_SRC R :results output
-    B=100
-    N=100
+    B=599 # number of samples
+    N=10000 # 
     alpha = 0.05
-    data = rnorm(B)
-    mean(data)
-    mean(sample(data,B,replace=TRUE))
-    booted <- sapply(c(1:N), function(i) { mean(sample(data,B,replace=TRUE)) })
+    # data is the actual population
+    data = rnorm(100000) # git repos
+    mean(data) # actual mean
+    oursample = sample(data,B,replace=TRUE) # what we could download
+    print("Mean of our sample")
+    mean(oursample) # the sample we downloaded
+    # bootstrap of our sample
+    booted <- sapply(c(1:N), function(i) { mean(sample(oursample,B,replace=TRUE)) })
+    print("Mean of our boostrap")
     mean(booted)
     summary(booted)
     quantile(booted,c(alpha/2,1.0 - alpha/2))
   #+END_SRC
 
   #+RESULTS:
-  : [1] -0.1656526
-  : [1] -0.1780562
-  : [1] -0.1663943
-  :    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  : -0.3833 -0.2246 -0.1500 -0.1664 -0.1006  0.0144 
+  : [1] 0.005541113
+  : [1] "Mean of our sample"
+  : [1] 0.003474092
+  : [1] "Mean of our boostrap"
+  : [1] 0.003507289
+  :      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+  : -0.146950 -0.025304  0.004032  0.003507  0.032264  0.170466 
   :        2.5%       97.5% 
-  : -0.35476243 -0.01557738 
+  : -0.07832266  0.08565354 
+
+
+  [-0.07,0.085] 95% CI of the mean
 
 *** R Run
 #+BEGIN_EXAMPLE
@@ -1094,26 +1106,53 @@
         - just return the min and max of the middle X % of the distribution
    
 *** R code
-#+BEGIN_SRC R
-    N=100
-    B=100
+#+BEGIN_SRC R :results output
+    N=10000 # iters / boots
+    B=10000   # samples
     alpha = 0.05
-    data1 = rnorm(B)
+    data1 = rnorm(B,mean=0.0)
     data2 = rnorm(B,mean=0.5)
+    print("Mean data 1 and 2")
     mean(data1)
     mean(data2)
+    print("diff of means")
     mean(data1) -  mean(data2)    
     booted <- sapply(c(1:N), function(i) { 
           mean( sample(data1,B,replace=TRUE) ) - 
           mean( sample(data2,B,replace=TRUE)  ) })
+    print("booted mean")
     mean(booted)
     summary(booted)
     quantile(booted,c(alpha/2,1.0 - alpha/2))
+    t.test(data1,data2)
 #+END_SRC
 
 #+RESULTS:
-| -0.770281661714806 |
-| -0.267706198336352 |
+#+begin_example
+[1] "Mean data 1 and 2"
+[1] -0.006933013
+[1] 0.5075485
+[1] "diff of means"
+[1] -0.5144815
+[1] "booted mean"
+[1] -0.5146121
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.5694 -0.5241 -0.5147 -0.5146 -0.5051 -0.4606 
+      2.5%      97.5% 
+-0.5421292 -0.4863055 
+
+	Welch Two Sample t-test
+
+data:  data1 and data2
+t = -36.202, df = 19996, p-value < 2.2e-16
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.542337 -0.486626
+sample estimates:
+   mean of x    mean of y 
+-0.006933013  0.507548509 
+
+#+end_example
 
 *** R Run
 #+BEGIN_EXAMPLE
@@ -1263,27 +1302,29 @@
     # install.packages("moments")
     library(moments)
     N=100
+    B=100
     alpha = 0.05
-    data1 = rnorm(N)
-    data2 = rnorm(N,mean=0.5)
+    data1 = rnorm(B)
+    data2 = rnorm(B,mean=0.5)
     skewness(data1)
     skewness(data2)
     skewness(data1) -  skewness(data2)    
-    booted <- sapply(c(1:N), function(i) { skewness( sample(data1,N,replace=TRUE) ) - skewness( sample(data2,N,replace=TRUE)  ) })
+    booted <- sapply(c(1:N), function(i) { skewness( sample(data1,B,replace=TRUE) ) - skewness( sample(data2,B,replace=TRUE)  ) })
     mean(booted)
     summary(booted)
     quantile(booted,c(alpha/2,1.0 - alpha/2))
+   
 #+END_SRC
 
 #+RESULTS:
-: [1] 0.47652
-: [1] 0.04601034
-: [1] 0.4305097
-: [1] 0.3777451
+: [1] 0.1261514
+: [1] -0.2033476
+: [1] 0.3294989
+: [1] 0.3298284
 :    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-: -0.4822  0.1628  0.3932  0.3777  0.5942  1.0525 
+: -0.2204  0.1334  0.3036  0.3298  0.5323  1.2594 
 :       2.5%      97.5% 
-: -0.2830958  0.9888581 
+: -0.1393781  0.8354140 
 
 *** Results
 #+BEGIN_EXAMPLE
