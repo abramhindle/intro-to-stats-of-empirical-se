@@ -59,10 +59,6 @@ print("Hello, Org Babel!")
 : Hello, Org Babel!
 : python.el: native completion setup loaded
 
-
-PROMPT: You are a professor of software engineering. You are teaching embeddings to graduate students of various background.
-At this point carry on the org-mode notebook tutorial and finish the code described in the introduction.
-
 * Textual Embeddings and Cosine Similarity
 In this section, we will parse all the `.h` files in `/usr/include/linux`, compute their embeddings, and find similar files using cosine similarity.
 
