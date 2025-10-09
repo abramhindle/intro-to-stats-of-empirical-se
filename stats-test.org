@@ -23,12 +23,13 @@
        - Can we trust it?
      - When not to use it:
        - when the data is not normal.
-*** T-Test in R
+** T-Test in R
        - in R:
          #+BEGIN_SRC R :results output
-          t.test(rnorm(10),rnorm(1000))
-          t.test(runif(100),rnorm(100))
-          t.test(rnorm(100,1),rnorm(100))
+           t.test(rnorm(10),rnorm(1000))
+           t.test(runif(100),rnorm(100))
+           t.test(rnorm(100,1),rnorm(100))
+           t.test(rnorm(10,1),rnorm(10))
          #+END_SRC
 
          #+RESULTS:
@@ -37,37 +38,49 @@
                  Welch Two Sample t-test
 
          data:  rnorm(10) and rnorm(1000)
-         t = 1.0666, df = 9.1232, p-value = 0.3135
+         t = 0.072994, df = 9.3127, p-value = 0.9434
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          -0.447979  1.250470
+          -0.5378368  0.5738934
          sample estimates:
-          mean of x  mean of y 
-          0.3884415 -0.0128042 
+           mean of x   mean of y 
+         0.021355537 0.003327265 
 
 
                  Welch Two Sample t-test
 
          data:  runif(100) and rnorm(100)
-         t = 6.1873, df = 117.83, p-value = 9.154e-09
+         t = 4.5788, df = 115.56, p-value = 1.187e-05
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          0.4197865 0.8149836
+          0.2766689 0.6985162
          sample estimates:
-           mean of x   mean of y 
-          0.51852805 -0.09885699 
+            mean of x    mean of y 
+          0.486584862 -0.001007703 
 
 
                  Welch Two Sample t-test
 
          data:  rnorm(100, 1) and rnorm(100)
-         t = 7.5082, df = 194.73, p-value = 2.102e-12
+         t = 7.5244, df = 196.07, p-value = 1.871e-12
          alternative hypothesis: true difference in means is not equal to 0
          95 percent confidence interval:
-          0.766901 1.313322
+          0.7725485 1.3213607
          sample estimates:
           mean of x  mean of y 
-          0.9117352 -0.1283761 
+         1.10664976 0.05969516 
+
+
+                 Welch Two Sample t-test
+
+         data:  rnorm(10, 1) and rnorm(10)
+         t = 1.3475, df = 15.281, p-value = 0.1975
+         alternative hypothesis: true difference in means is not equal to 0
+         95 percent confidence interval:
+          -0.3537452  1.5750848
+         sample estimates:
+           mean of x   mean of y 
+          0.51621514 -0.09445463 
 
          #+end_example
 
@@ -135,10 +148,14 @@
       
 *** Wilcoxon in R
          #+BEGIN_SRC R :results output
-         wilcox.test(rnorm(101),rnorm(99))
-         wilcox.test(runif(104),rnorm(102))
-         wilcox.test(rnorm(102,1),rnorm(103))
-         wilcox.test(rnorm(102,1)+10000,rnorm(103))
+           wilcox.test(rnorm(121),rnorm(99))
+           wilcox.test(runif(104),rnorm(102))
+           wilcox.test(rnorm(102,1),rnorm(103))
+           r1 <- rnorm(102,0.1)
+           r2 <- rnorm(103)
+           wilcox.test(r1,r2)
+           t.test(r1,r2)
+           wilcox.test(rnorm(102,1)+10000,rnorm(103))
          #+END_SRC
 
          #+RESULTS:
@@ -146,23 +163,42 @@
 
                  Wilcoxon rank sum test with continuity correction
 
-         data:  rnorm(101) and rnorm(99)
-         W = 5109, p-value = 0.79
+         data:  rnorm(121) and rnorm(99)
+         W = 6146, p-value = 0.7398
          alternative hypothesis: true location shift is not equal to 0
 
 
                  Wilcoxon rank sum test with continuity correction
 
          data:  runif(104) and rnorm(102)
-         W = 7329, p-value = 2.216e-06
+         W = 6864, p-value = 0.0002667
          alternative hypothesis: true location shift is not equal to 0
 
 
                  Wilcoxon rank sum test with continuity correction
 
          data:  rnorm(102, 1) and rnorm(103)
-         W = 7688, p-value = 9.893e-09
+         W = 8195, p-value = 4.317e-12
          alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon rank sum test with continuity correction
+
+         data:  r1 and r2
+         W = 6199, p-value = 0.02599
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Welch Two Sample t-test
+
+         data:  r1 and r2
+         t = 2.7522, df = 201.13, p-value = 0.00646
+         alternative hypothesis: true difference in means is not equal to 0
+         95 percent confidence interval:
+          0.1096904 0.6640023
+         sample estimates:
+          mean of x  mean of y 
+          0.1497156 -0.2371307 
 
 
                  Wilcoxon rank sum test with continuity correction
@@ -217,23 +253,24 @@
          : 	Wilcoxon signed rank test with continuity correction
          : 
          : data:  rnorm(100) and rnorm(100)
-         : V = 2354, p-value = 0.5577
+         : V = 2721, p-value = 0.5015
          : alternative hypothesis: true location shift is not equal to 0
          : 
 
 
          Location matters:
          #+BEGIN_SRC R :results output
-         x = rnorm(100) 
-         wilcox.test(x,x+0.1,paired=TRUE)
-         wilcox.test(x,x+0.5,paired=TRUE)
-         wilcox.test(x,x+1.0,paired=TRUE)
-         y = x - 0.1*rnorm(100)
-         wilcox.test(x,y,paired=TRUE)
-         z = x + 0.1*runif(100)
-         wilcox.test(x,z,paired=TRUE)
-         w = x*runif(100)
-         wilcox.test(x,w,paired=TRUE)
+           x = rnorm(100) 
+           wilcox.test(x,x+0.1,paired=TRUE)
+           wilcox.test(x,x+0.5,paired=TRUE)
+           wilcox.test(x,x+1.0,paired=TRUE)
+           y = x - 0.1*rnorm(100)
+           wilcox.test(x,y,paired=TRUE)
+           z = x + 0.1*runif(100)
+           wilcox.test(x,z)
+           wilcox.test(x,z,paired=TRUE)
+           w = x*runif(100)
+           wilcox.test(x,w,paired=TRUE)
          #+END_SRC
 
          #+RESULTS:
@@ -263,7 +300,14 @@
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and y
-         V = 3031, p-value = 0.0822
+         V = 2963, p-value = 0.1325
+         alternative hypothesis: true location shift is not equal to 0
+
+
+                 Wilcoxon rank sum test with continuity correction
+
+         data:  x and z
+         W = 4804, p-value = 0.6329
          alternative hypothesis: true location shift is not equal to 0
 
 
@@ -277,7 +321,7 @@
                  Wilcoxon signed rank test with continuity correction
 
          data:  x and w
-         V = 2628, p-value = 0.7245
+         V = 2385, p-value = 0.6315
          alternative hypothesis: true location shift is not equal to 0
 
          #+end_example
