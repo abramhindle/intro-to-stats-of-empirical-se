@@ -1,0 +1,199 @@
+#+begin_src org
+#+TITLE: Ordinary Least Squares Linear Regression Tutorial
+#+AUTHOR: Abram Hindle
+#+DATE: 2025-10-09T11:53:19-06:00
+#+PROPERTY: header-args:python :jupyter "python3" :session ols :results output
+
+* Introduction
+
+Welcome to the Ordinary Least Squares (OLS) linear regression
+tutorial. In this notebook, we will generate synthetic data, fit an
+OLS model, evaluate its performance, and analyze the effects of noise
+on the model's predictions.
+
+* Setup
+We will import the necessary libraries for our analysis.
+
+#+BEGIN_SRC python
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn
+import pandas as pd
+from sklearn.metrics import r2_score
+
+# Function to create a design matrix from data
+def dataToX(data):
+    (n, ivars) = data.shape
+    X = np.ones((n, ivars + 1))  # Add a column of ones for the intercept
+    X[:, 1:(1 + ivars)] = data
+    return X
+
+# Given this code please output as a python triple quoted string the latex for the math to explain this function
+# Function to fit OLS model
+def fitOLS(data, Y):
+    """
+    \begin{align*}
+    \text{Let } Y & \text{ be the dependent variable vector,} \\
+    X & \text{ be the design matrix, and} \\
+    B & \text{ be the coefficient vector to estimate.} \\
+    
+    \text{The Ordinary Least Squares (OLS) estimation can be expressed as:} \\
+    B & = (X^T X)^{-1} X^T Y \\
+    \text{where:} \\
+    X^T & \text{ is the transpose of } X, \\
+    (X^T X)^{-1} & \text{ is the inverse of the product of } X^T \text{ and } X.
+    \end{align*}
+    """
+    """
+    1. *Y* is the vector of dependent variables (the outputs or responses).
+    2. *X* is the design matrix that includes the independent variables (the inputs).
+    3. *B* is the vector of coefficients we want to estimate (the parameters).
+    
+    The relationship is given by the Ordinary Least Squares (OLS) formula:
+    
+    B = (X^T * X)^(-1) * X^T * Y
+    
+    Where:
+    - X^T is the transpose of matrix X.
+    - (X^T * X)^(-1) is the inverse of the matrix product X^T and X.
+    - This formula helps us find the best-fitting line (or hyperplane) that minimizes the difference between the observed values (Y) and the predicted values based on X and B.
+    """
+    X = dataToX(data)
+    Xt = np.transpose(X)
+    B = np.matmul(np.linalg.inv(np.matmul(Xt, X)), np.matmul(Xt, Y))
+    return B
+
+# Function to generate predictions from OLS model
+def predictOLS(data, B):
+    X = dataToX(data)
+    return np.matmul(X, B)
+#+END_SRC
+
+#+RESULTS:
+
+* Data Generation
+We will generate synthetic data for our OLS regression.
+
+#+BEGIN_SRC python
+# Setting parameters
+trueb = np.matrix([[3], [1], [2], [3]])  # True coefficients
+ivars = 3  # Number of independent variables
+n = 100  # Number of samples
+
+# Creating the independent variables
+X = np.ones((n, ivars + 1))  # Add a column of ones
+data = np.random.random((n, ivars))  # Random data
+X[:, 1:(1 + ivars)] = data
+
+# Adding noise to the dependent variable
+noise = 0.1 * np.random.random((n, 1))
+Y = np.matmul(X, trueb) + noise  # Dependent variable
+
+# Displaying shapes
+print("X.shape:", X.shape)
+print("Y.shape:", Y.shape)
+#+END_SRC
+
+#+RESULTS:
+: X.shape: (100, 4)
+: Y.shape: (100, 1)
+
+* Visualize Generated Data
+Let's visualize the generated data with a pairplot.
+
+#+BEGIN_SRC python
+dfX = pd.DataFrame(X)
+dfX['y'] = Y
+dfX['ry'] = np.round(Y)  # Rounded y for coloring
+seaborn.pairplot(dfX, hue='ry')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+
+* OLS Fitting
+We will fit our OLS model to the generated data.
+
+#+BEGIN_SRC python
+# Fit the OLS model
+B = fitOLS(data, Y)
+print("B (fitted coefficients):\n", B)
+print("Difference from trueb:\n", trueb - B)
+
+# Predictions
+Yhat = predictOLS(data, B)
+
+# Calculate RMS and R^2 score
+def rms(Y1, Y2):
+    return np.sqrt(np.mean(np.array(Y1 - Y2) ** 2))
+
+print("RMS(Y, Yhat):", rms(Y, Yhat))
+print("R^2 score:", r2_score(np.asarray(Y), np.asarray(Yhat)))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+B (fitted coefficients):
+ [[3.06138   ]
+ [0.99527651]
+ [1.99889572]
+ [2.98166836]]
+Difference from trueb:
+ [[-0.06138   ]
+ [ 0.00472349]
+ [ 0.00110428]
+ [ 0.01833164]]
+RMS(Y, Yhat): 0.030418744141561847
+R^2 score: 0.9992186883792166
+#+end_example
+
+* Visualize Predictions
+Visualize the predictions against the original data.
+
+#+BEGIN_SRC python
+dfX['y_predicted'] = Yhat
+seaborn.pairplot(dfX, hue='ry')
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+
+* Noise Impact Analysis
+We will explore the impact of noise on the OLS model.
+
+#+BEGIN_SRC python
+def effectOfNoise(noiseCoef):
+    noise = noiseCoef * np.random.random((n, 1))
+    trueb = np.random.random((ivars + 1, 1))
+    data = np.random.random((n, ivars))
+    X = dataToX(data)
+    Y = np.matmul(X, trueb) + noise
+    Ytrain = Y[0:50, 0]
+    Ytest = Y[50:, 0]
+    dataTrain = data[0:50, :]
+    dataTest = data[50:, :]
+    Btrain = fitOLS(dataTrain, Ytrain)
+    Yhattrain = predictOLS(dataTrain, Btrain)
+    Yhattest = predictOLS(dataTest, Btrain)
+    return (r2_score(Ytrain, Yhattrain), r2_score(Ytest, Yhattest))
+
+# Analyzing the effect of noise
+for noiseCoef in [0.0, 0.1, 0.5, 1.0, 2.0, 4.0, 8.0]:
+    mean_scores = np.mean([effectOfNoise(noiseCoef) for _ in range(40)], axis=0)
+    print(f"Noise Coefficient: {noiseCoef}, Train R^2: {mean_scores[0]}, Test R^2: {mean_scores[1]}")
+#+END_SRC
+
+#+RESULTS:
+: Noise Coefficient: 0.0, Train R^2: 1.0, Test R^2: 1.0
+: Noise Coefficient: 0.1, Train R^2: 0.9891428535304424, Test R^2: 0.9873558704931297
+: Noise Coefficient: 0.5, Train R^2: 0.7657713170868476, Test R^2: 0.736819765410661
+: Noise Coefficient: 1.0, Train R^2: 0.4971853444719586, Test R^2: 0.4209896264121212
+: Noise Coefficient: 2.0, Train R^2: 0.2329390439392569, Test R^2: 0.10763410341863397
+: Noise Coefficient: 4.0, Train R^2: 0.10679165361694602, Test R^2: -0.056621184032888114
+: Noise Coefficient: 8.0, Train R^2: 0.07838999352893357, Test R^2: -0.0965323955302652
+
+* Conclusion
+In this tutorial, we explored OLS linear regression, fitted a model, evaluated its performance, and analyzed the impact of noise on model accuracy. Remember, higher noise typically leads to worse performance on test sets compared to training sets.
+#+end_src
+
+This format allows students to execute the code in individual blocks, examine outputs, and visualize results at stopping points, making it an effective learning tool in an Org-mode environment.
