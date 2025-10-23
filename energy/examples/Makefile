@@ -16,14 +16,15 @@ likwid-tests: read-a-file-by-chars read-a-file-by-line-getline read-a-file-by-li
 	sudo likwid-powermeter perl ./read-a-file-by-chars.pl | tail -n 13
 	sudo likwid-powermeter ./read-a-file-by-line-getline | tail -n 13
 	sudo likwid-powermeter ./read-a-file-by-line-mmap | tail -n 13
-
+# was power/energy-cores/
+ENERGY=power/energy-pkg/
 perf-tests: read-a-file-by-chars read-a-file-by-line-getline read-a-file-by-line-mmap read-a-file-by-chars.pl  read-a-file-by-chars.py
 	cat input.txt > /dev/null
-	sudo perf stat -a -e "power/energy-cores/" ./read-a-file-by-chars             2>&1 > /dev/null               
-	sudo perf stat -a -e "power/energy-cores/" python3 ./read-a-file-by-chars.py  2>&1 > /dev/null              
-	sudo perf stat -a -e "power/energy-cores/" perl ./read-a-file-by-chars.pl     2>&1 > /dev/null           
-	sudo perf stat -a -e "power/energy-cores/" ./read-a-file-by-line-getline      2>&1 > /dev/null         
-	sudo perf stat -a -e "power/energy-cores/" ./read-a-file-by-line-mmap         2>&1 > /dev/null      
+	sudo perf stat -a -e ${ENERGY} ./read-a-file-by-chars             2>&1 > /dev/null               
+	sudo perf stat -a -e ${ENERGY} python3 ./read-a-file-by-chars.py  2>&1 > /dev/null              
+	sudo perf stat -a -e ${ENERGY} perl ./read-a-file-by-chars.pl     2>&1 > /dev/null           
+	sudo perf stat -a -e ${ENERGY} ./read-a-file-by-line-getline      2>&1 > /dev/null         
+	sudo perf stat -a -e ${ENERGY} ./read-a-file-by-line-mmap         2>&1 > /dev/null      
 
 time-tests: read-a-file-by-chars read-a-file-by-line-getline read-a-file-by-line-mmap read-a-file-by-chars.pl  read-a-file-by-chars.py
 	cat input.txt > /dev/null
