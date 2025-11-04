@@ -1,0 +1,492 @@
+#+TITLE: Social Network Analysis in Python
+#+AUTHOR: Abram Hindle
+#+DATE: 2025-11-04T13:28:45-07:00
+#+PROPERTY: header-args:python :jupyter "python3" :session sna :results output
+
+* Social Network Analysis in Python3
+** Introduction
+This tutorial will guide you through performing social network analysis using Python3, focusing on the relationships between committers and authors from a CSV file.
+
+** The Dataset
+
+ We're using the dataset from zenodo here:
+
+ Dhaouadi, M., Oakes, B., & Famelis, M. (2023, November 1). Rationale
+ Dataset and Analysis for the Commit Messages of the Linux Kernel
+ Out-of-Memory Killer. https://doi.org/10.5281/zenodo.10063089
+
+ https://zenodo.org/records/10063089/files/dataset_3_labels_merged.csv?download=1
+
+
+** Prerequisites
+Make sure to install the following Python packages:
+- networkx
+- matplotlib
+- csv
+
+You can install these packages using pip:
+#+begin_src bash
+pip install networkx matplotlib
+#+end_src 
+
+*** Org
+
+#+begin_src elisp
+   (org-babel-do-load-languages
+    'org-babel-load-languages '((python . t)))
+   (setq org-babel-python-command "python3")
+#+end_src
+
+#+RESULTS:
+: python3
+
+** Load the CSV File
+We will load `dataset_3_labels_merged.csv`, which uses semi-colons as delimiters.
+
+#+BEGIN_SRC python
+import csv
+from collections import defaultdict
+
+# Load the CSV file
+graph_data = defaultdict(list)
+with open('dataset_3_labels_merged.csv', mode='r', newline='', encoding='utf-8') as file:
+    reader = csv.DictReader(file, delimiter=';')
+    for row in reader:
+        committer = row["committer name"]
+        author = row["author name"]
+        graph_data[committer].append(author)
+
+print("Data loaded successfully.")
+#+END_SRC
+
+#+RESULTS:
+: Data loaded successfully.
+
+** Create the Graph
+We'll create a directed graph from the relationships between committers and authors.
+
+#+BEGIN_SRC python
+import networkx as nx
+
+# Create graph
+G = nx.DiGraph()
+for committer, authors in graph_data.items():
+    for author in authors:
+        G.add_edge(committer, author)
+
+print("Graph created with nodes and edges.")
+print(G)
+#+END_SRC
+
+#+RESULTS:
+: Graph created with nodes and edges.
+: DiGraph with 98 nodes and 100 edges
+
+** Plot the Graph
+We'll use Matplotlib to visualize the graph.
+
+#+BEGIN_SRC python
+import matplotlib.pyplot as plt
+
+# Drawing the graph
+plt.figure(figsize=(12, 8))
+pos = nx.spring_layout(G)
+nx.draw(G, pos, with_labels=True, node_size=2000, node_color="skyblue", font_size=10, font_color="black")
+plt.title("Committer-Author Relationship Graph")
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+
+** Calculate Betweenness Centrality
+Using NetworkX, we calculate the betweenness centrality of authors.
+
+#+BEGIN_SRC python
+betweenness_centrality = nx.betweenness_centrality(G)
+print("Betweenness centrality of authors:", betweenness_centrality)
+#+END_SRC
+
+#+RESULTS:
+: Betweenness centrality of authors: {'Andrew Morton': 0.0002147766323024055, 'Michal Hocko': 0.0, 'Suren Baghdasaryan': 0.0, 'akpm': 0.0, 'Matthew Wilcox (Oracle)': 0.0, 'Hugh Dickins': 0.0, 'Linus Torvalds': 0.0, 'Dan Schatzberg': 0.0, 'Sultan Alsawaf': 0.0, 'Feng Tang': 0.0, 'Ingo Molnar': 0.0002147766323024055, 'Zhiyuan Dai': 0.0, 'Randy Dunlap': 0.0, 'Tang Yizhou': 0.0, 'Yafang Shao': 0.0, 'Christoph Hellwig': 0.0, 'Michel Lespinasse': 0.0, 'Joonsoo Kim': 0.0, 'David Rientjes': 0.0, 'Ilya Dryomov': 0.0, 'Minchan Kim': 0.0, 'Edward Chron': 0.0, 'Tetsuo Handa': 0.0, 'Joel Savitz': 0.0, 'Shakeel Butt': 0.0, 'JÃƒÂ©rÃƒÂ´me Glisse': 0.0, 'yuzhoujian': 0.0, 'Roman Gushchin': 0.0, 'Rodrigo Freire': 0.0, 'Mike Rapoport': 0.0, 'Wang Nan': 0.0, 'Kirill A. Shutemov': 0.0, 'Andrea Arcangeli': 0.0, 'Konstantin Khlebnikov': 0.0, 'Vegard Nossum': 0.0, 'Vladimir Davydov': 0.0, 'Geert Uytterhoeven': 0.0, 'Joe Perches': 0.0, 'Johannes Weiner': 0.0, 'Vlastimil Babka': 0.0, 'Jerome Marchand': 0.0, 'Chen Jie': 0.0, 'Yaowei Bai': 0.0, 'Oleg Nesterov': 0.00010738831615120275, 'Wang Long': 0.0, 'Sha Zhengju': 0.0, 'Lai Jiangshan': 0.0, 'Davidlohr Bueso': 0.0, 'Wanpeng Li': 0.0, 'KAMEZAWA Hiroyuki': 0.0, 'Frantisek Hrbata': 0.0, 'KOSAKI Motohiro': 0.0, 'Andrey Vagin': 0.0, 'Luis Claudio R. Goncalves': 0.0, 'Daisuke Nishimura': 0.0, 'Balbir Singh': 0.0, 'Cyrill Gorcunov': 0.0, 'Nick Piggin': 0.0, 'Qinghuang Feng': 0.0, 'Li Zefan': 0.0, 'Mel Gorman': 0.0, 'Pavel Emelianov': 0.0, 'Serge E. Hallyn': 0.0, 'Andrew Morgan': 0.0, 'Al Viro': 0.0, 'Pavel Emelyanov': 0.0, 'Matthias Kaehlcke': 0.0, 'Christoph Lameter': 0.0, 'Alexey Dobriyan': 0.0, 'Yasunori Goto': 0.0, 'Joshua N Pritikin': 0.0, 'Ankita Garg': 0.0, 'Paul Jackson': 0.0, 'Sukadev Bhattiprolu': 0.0, 'Ram Gupta': 0.0, 'Martin Schwidefsky': 0.0, 'Dave Peterson': 0.0, 'Kurt Garloff': 0.0, 'Kirill Korotaev': 0.0, 'Nishanth Aravamudan': 0.0, 'Anton Blanchard': 0.0, 'Marcelo Tosatti': 0.0, 'Janet Morgan': 0.0, 'Eric W. Biederman': 0.0, 'Christian Brauner': 0.0, 'Paul E. McKenney': 0.0, 'Rolf Eike Beer': 0.0, 'Peter Zijlstra': 0.0002147766323024055, 'Will Deacon': 0.0, 'Greg Kroah-Hartman': 0.0, 'Thomas Gleixner': 0.0, 'Tejun Heo': 0.00010738831615120275, 'Rafael J. Wysocki': 0.0, 'Rusty Russell': 0.0, 'Paul Gortmaker': 0.0, 'James Morris': 0.0, 'David Howells': 0.0, 'Eric Paris': 0.0}
+
+#+BEGIN_SRC python
+LMG = nx.les_miserables_graph()
+betweenness_centrality = nx.betweenness_centrality(LMG)
+print("Betweenness centrality of authors:", betweenness_centrality)
+#+END_SRC
+
+#+RESULTS:
+: Betweenness centrality of authors: {'Napoleon': 0.0, 'Myriel': 0.17684210526315788, 'MlleBaptistine': 0.0, 'MmeMagloire': 0.0, 'CountessDeLo': 0.0, 'Geborand': 0.0, 'Champtercier': 0.0, 'Cravatte': 0.0, 'Count': 0.0, 'OldMan': 0.0, 'Valjean': 0.5699890527836184, 'Labarre': 0.0, 'Marguerite': 0.0, 'MmeDeR': 0.0, 'Isabeau': 0.0, 'Gervais': 0.0, 'Listolier': 0.0, 'Tholomyes': 0.04062934817733579, 'Fameuil': 0.0, 'Blacheville': 0.0, 'Favourite': 0.0, 'Dahlia': 0.0, 'Zephine': 0.0, 'Fantine': 0.12964454098819422, 'MmeThenardier': 0.02900241873046176, 'Thenardier': 0.07490122123424225, 'Cosette': 0.023796253454148188, 'Javert': 0.05433155966478436, 'Fauchelevent': 0.026491228070175437, 'Bamatabois': 0.008040935672514621, 'Perpetue': 0.0, 'Simplice': 0.008640295033483888, 'Scaufflaire': 0.0, 'Woman1': 0.0, 'Judge': 0.0, 'Champmathieu': 0.0, 'Brevet': 0.0, 'Chenildieu': 0.0, 'Cochepaille': 0.0, 'Pontmercy': 0.006925438596491228, 'Boulatruelle': 0.0, 'Eponine': 0.011487550654163002, 'Anzelma': 0.0, 'Woman2': 0.0, 'MotherInnocent': 0.0, 'Gribier': 0.0, 'MmeBurgon': 0.02631578947368421, 'Jondrette': 0.0, 'Gavroche': 0.16511250242584766, 'Gillenormand': 0.02021062158319776, 'Magnon': 0.00021720969089390142, 'MlleGillenormand': 0.047598927875243675, 'MmePontmercy': 0.0003508771929824561, 'MlleVaubois': 0.0, 'LtGillenormand': 0.0, 'Marius': 0.132032488621946, 'BaronessT': 0.0, 'Mabeuf': 0.027661236424394314, 'Enjolras': 0.0425533568221771, 'Combeferre': 0.0012501455659350393, 'Prouvaire': 0.0, 'Feuilly': 0.0012501455659350393, 'Courfeyrac': 0.00526702988198833, 'Bahorel': 0.0021854883087570067, 'Bossuet': 0.03075365017995782, 'Joly': 0.0021854883087570067, 'Grantaire': 0.00015037593984962405, 'MotherPlutarch': 0.0, 'Gueulemer': 0.004960383978389518, 'Babet': 0.004960383978389518, 'Claquesous': 0.00486180419559921, 'Montparnasse': 0.0038738298738298727, 'Toussaint': 0.0, 'Child1': 0.0, 'Child2': 0.0, 'Brujon': 0.00043859649122807013, 'MmeHucheloup': 0.0}
+
+
+
+** Calculate Degree Centrality
+Using NetworkX, we calculate the Degree centrality of authors.
+
+#+BEGIN_SRC python
+degree_centrality = nx.degree_centrality(G)
+print("Degree centrality of authors:", degree_centrality)
+#+END_SRC
+
+#+RESULTS:
+: Degree centrality of authors: {'Andrew Morton': 0.041237113402061855, 'Michal Hocko': 0.030927835051546393, 'Suren Baghdasaryan': 0.020618556701030927, 'akpm': 0.010309278350515464, 'Matthew Wilcox (Oracle)': 0.010309278350515464, 'Hugh Dickins': 0.020618556701030927, 'Linus Torvalds': 0.845360824742268, 'Dan Schatzberg': 0.010309278350515464, 'Sultan Alsawaf': 0.010309278350515464, 'Feng Tang': 0.010309278350515464, 'Ingo Molnar': 0.041237113402061855, 'Zhiyuan Dai': 0.010309278350515464, 'Randy Dunlap': 0.010309278350515464, 'Tang Yizhou': 0.010309278350515464, 'Yafang Shao': 0.010309278350515464, 'Christoph Hellwig': 0.010309278350515464, 'Michel Lespinasse': 0.010309278350515464, 'Joonsoo Kim': 0.010309278350515464, 'David Rientjes': 0.010309278350515464, 'Ilya Dryomov': 0.010309278350515464, 'Minchan Kim': 0.010309278350515464, 'Edward Chron': 0.010309278350515464, 'Tetsuo Handa': 0.010309278350515464, 'Joel Savitz': 0.010309278350515464, 'Shakeel Butt': 0.010309278350515464, 'JÃƒÂ©rÃƒÂ´me Glisse': 0.010309278350515464, 'yuzhoujian': 0.010309278350515464, 'Roman Gushchin': 0.010309278350515464, 'Rodrigo Freire': 0.010309278350515464, 'Mike Rapoport': 0.010309278350515464, 'Wang Nan': 0.010309278350515464, 'Kirill A. Shutemov': 0.010309278350515464, 'Andrea Arcangeli': 0.010309278350515464, 'Konstantin Khlebnikov': 0.010309278350515464, 'Vegard Nossum': 0.010309278350515464, 'Vladimir Davydov': 0.020618556701030927, 'Geert Uytterhoeven': 0.010309278350515464, 'Joe Perches': 0.010309278350515464, 'Johannes Weiner': 0.010309278350515464, 'Vlastimil Babka': 0.010309278350515464, 'Jerome Marchand': 0.010309278350515464, 'Chen Jie': 0.010309278350515464, 'Yaowei Bai': 0.010309278350515464, 'Oleg Nesterov': 0.020618556701030927, 'Wang Long': 0.010309278350515464, 'Sha Zhengju': 0.010309278350515464, 'Lai Jiangshan': 0.010309278350515464, 'Davidlohr Bueso': 0.010309278350515464, 'Wanpeng Li': 0.010309278350515464, 'KAMEZAWA Hiroyuki': 0.010309278350515464, 'Frantisek Hrbata': 0.010309278350515464, 'KOSAKI Motohiro': 0.010309278350515464, 'Andrey Vagin': 0.010309278350515464, 'Luis Claudio R. Goncalves': 0.010309278350515464, 'Daisuke Nishimura': 0.010309278350515464, 'Balbir Singh': 0.010309278350515464, 'Cyrill Gorcunov': 0.010309278350515464, 'Nick Piggin': 0.010309278350515464, 'Qinghuang Feng': 0.010309278350515464, 'Li Zefan': 0.010309278350515464, 'Mel Gorman': 0.010309278350515464, 'Pavel Emelianov': 0.010309278350515464, 'Serge E. Hallyn': 0.010309278350515464, 'Andrew Morgan': 0.010309278350515464, 'Al Viro': 0.010309278350515464, 'Pavel Emelyanov': 0.010309278350515464, 'Matthias Kaehlcke': 0.010309278350515464, 'Christoph Lameter': 0.010309278350515464, 'Alexey Dobriyan': 0.010309278350515464, 'Yasunori Goto': 0.010309278350515464, 'Joshua N Pritikin': 0.010309278350515464, 'Ankita Garg': 0.010309278350515464, 'Paul Jackson': 0.010309278350515464, 'Sukadev Bhattiprolu': 0.010309278350515464, 'Ram Gupta': 0.010309278350515464, 'Martin Schwidefsky': 0.010309278350515464, 'Dave Peterson': 0.010309278350515464, 'Kurt Garloff': 0.010309278350515464, 'Kirill Korotaev': 0.010309278350515464, 'Nishanth Aravamudan': 0.010309278350515464, 'Anton Blanchard': 0.010309278350515464, 'Marcelo Tosatti': 0.010309278350515464, 'Janet Morgan': 0.010309278350515464, 'Eric W. Biederman': 0.020618556701030927, 'Christian Brauner': 0.020618556701030927, 'Paul E. McKenney': 0.010309278350515464, 'Rolf Eike Beer': 0.010309278350515464, 'Peter Zijlstra': 0.020618556701030927, 'Will Deacon': 0.010309278350515464, 'Greg Kroah-Hartman': 0.010309278350515464, 'Thomas Gleixner': 0.010309278350515464, 'Tejun Heo': 0.041237113402061855, 'Rafael J. Wysocki': 0.010309278350515464, 'Rusty Russell': 0.020618556701030927, 'Paul Gortmaker': 0.020618556701030927, 'James Morris': 0.020618556701030927, 'David Howells': 0.010309278350515464, 'Eric Paris': 0.010309278350515464}
+
+
+
+#+begin_src python
+import numpy as np
+
+# Prepare data for plotting
+authors = list(degree_centrality.keys())
+centrality_values = list(degree_centrality.values())
+
+# Combine authors and centrality values into a list of tuples
+combined = list(zip(authors, centrality_values))
+
+# Sort the combined list by centrality values
+sorted_combined = sorted(combined, key=lambda x: x[1])
+
+# Unzip the sorted list back into authors and centrality values
+sorted_authors, sorted_centrality_values = zip(*sorted_combined)
+
+# Plotting
+plt.figure(figsize=(10, 6))
+plt.barh(sorted_authors, sorted_centrality_values, color='skyblue')
+plt.xlabel('Degree Centrality')
+plt.title('Degree Centrality of Authors')
+plt.xlim(0, max(sorted_centrality_values) + 0.1 * max(sorted_centrality_values))  # Adding some padding
+plt.gca().invert_yaxis()  # Invert y axis to have the highest value on top
+plt.show()
+#+end_src
+
+#+RESULTS:
+
+
+Now for les miserables!
+
+
+#+BEGIN_SRC python
+degree_centrality = nx.degree_centrality(LMG)
+print("Degree centrality of authors:", degree_centrality)
+#+END_SRC
+
+#+RESULTS:
+: Degree centrality of authors: {'Napoleon': 0.013157894736842105, 'Myriel': 0.13157894736842105, 'MlleBaptistine': 0.039473684210526314, 'MmeMagloire': 0.039473684210526314, 'CountessDeLo': 0.013157894736842105, 'Geborand': 0.013157894736842105, 'Champtercier': 0.013157894736842105, 'Cravatte': 0.013157894736842105, 'Count': 0.013157894736842105, 'OldMan': 0.013157894736842105, 'Valjean': 0.47368421052631576, 'Labarre': 0.013157894736842105, 'Marguerite': 0.02631578947368421, 'MmeDeR': 0.013157894736842105, 'Isabeau': 0.013157894736842105, 'Gervais': 0.013157894736842105, 'Listolier': 0.09210526315789473, 'Tholomyes': 0.11842105263157894, 'Fameuil': 0.09210526315789473, 'Blacheville': 0.09210526315789473, 'Favourite': 0.09210526315789473, 'Dahlia': 0.09210526315789473, 'Zephine': 0.09210526315789473, 'Fantine': 0.19736842105263158, 'MmeThenardier': 0.14473684210526316, 'Thenardier': 0.21052631578947367, 'Cosette': 0.14473684210526316, 'Javert': 0.22368421052631576, 'Fauchelevent': 0.05263157894736842, 'Bamatabois': 0.10526315789473684, 'Perpetue': 0.02631578947368421, 'Simplice': 0.05263157894736842, 'Scaufflaire': 0.013157894736842105, 'Woman1': 0.02631578947368421, 'Judge': 0.07894736842105263, 'Champmathieu': 0.07894736842105263, 'Brevet': 0.07894736842105263, 'Chenildieu': 0.07894736842105263, 'Cochepaille': 0.07894736842105263, 'Pontmercy': 0.039473684210526314, 'Boulatruelle': 0.013157894736842105, 'Eponine': 0.14473684210526316, 'Anzelma': 0.039473684210526314, 'Woman2': 0.039473684210526314, 'MotherInnocent': 0.02631578947368421, 'Gribier': 0.013157894736842105, 'MmeBurgon': 0.02631578947368421, 'Jondrette': 0.013157894736842105, 'Gavroche': 0.2894736842105263, 'Gillenormand': 0.09210526315789473, 'Magnon': 0.02631578947368421, 'MlleGillenormand': 0.09210526315789473, 'MmePontmercy': 0.02631578947368421, 'MlleVaubois': 0.013157894736842105, 'LtGillenormand': 0.05263157894736842, 'Marius': 0.25, 'BaronessT': 0.02631578947368421, 'Mabeuf': 0.14473684210526316, 'Enjolras': 0.19736842105263158, 'Combeferre': 0.14473684210526316, 'Prouvaire': 0.11842105263157894, 'Feuilly': 0.14473684210526316, 'Courfeyrac': 0.17105263157894735, 'Bahorel': 0.15789473684210525, 'Bossuet': 0.17105263157894735, 'Joly': 0.15789473684210525, 'Grantaire': 0.13157894736842105, 'MotherPlutarch': 0.013157894736842105, 'Gueulemer': 0.13157894736842105, 'Babet': 0.13157894736842105, 'Claquesous': 0.13157894736842105, 'Montparnasse': 0.11842105263157894, 'Toussaint': 0.039473684210526314, 'Child1': 0.02631578947368421, 'Child2': 0.02631578947368421, 'Brujon': 0.09210526315789473, 'MmeHucheloup': 0.09210526315789473}
+
+Plot of the degree centrality labelled by author 
+
+#+begin_src python
+import numpy as np
+
+# Prepare data for plotting
+authors = list(degree_centrality.keys())
+centrality_values = list(degree_centrality.values())
+
+# Combine authors and centrality values into a list of tuples
+combined = list(zip(authors, centrality_values))
+
+# Sort the combined list by centrality values
+sorted_combined = sorted(combined, key=lambda x: x[1])
+
+# Unzip the sorted list back into authors and centrality values
+sorted_authors, sorted_centrality_values = zip(*sorted_combined)
+
+# Plotting
+plt.figure(figsize=(10, 6))
+plt.barh(sorted_authors, sorted_centrality_values, color='skyblue')
+plt.xlabel('Degree Centrality')
+plt.title('Degree Centrality of Authors')
+plt.xlim(0, max(sorted_centrality_values) + 0.1 * max(sorted_centrality_values))  # Adding some padding
+plt.gca().invert_yaxis()  # Invert y axis to have the highest value on top
+plt.show()
+#+end_src
+
+#+RESULTS:
+
+** Calculate |V| and |E|
+Here, we will determine the number of vertices and edges in the graph.
+
+#+BEGIN_SRC python
+num_vertices = G.number_of_nodes()
+num_edges = G.number_of_edges()
+print(f"|V| (Number of vertices): {num_vertices}")
+print(f"|E| (Number of edges): {num_edges}")
+#+END_SRC
+
+#+RESULTS:
+: |V| (Number of vertices): 98
+: |E| (Number of edges): 100
+
+** Calculate Eccentricity(v) per Author
+We'll calculate the eccentricity for each author. But first on an example graph.
+
+#+BEGIN_SRC python
+LMG = nx.les_miserables_graph()
+eccentricity = nx.eccentricity(LMG)
+print("Eccentricity of each author:", eccentricity)
+print("Radius:", str(nx.radius(LMG)))
+print("Diameter:", str(nx.diameter(LMG)))
+nx.draw(LMG, with_labels=True)
+plt.show()
+#+END_SRC
+
+#+RESULTS:
+: Eccentricity of each author: {'Napoleon': 5, 'Myriel': 4, 'MlleBaptistine': 4, 'MmeMagloire': 4, 'CountessDeLo': 5, 'Geborand': 5, 'Champtercier': 5, 'Cravatte': 5, 'Count': 5, 'OldMan': 5, 'Valjean': 3, 'Labarre': 4, 'Marguerite': 4, 'MmeDeR': 4, 'Isabeau': 4, 'Gervais': 4, 'Listolier': 5, 'Tholomyes': 4, 'Fameuil': 5, 'Blacheville': 5, 'Favourite': 5, 'Dahlia': 5, 'Zephine': 5, 'Fantine': 4, 'MmeThenardier': 4, 'Thenardier': 3, 'Cosette': 4, 'Javert': 3, 'Fauchelevent': 4, 'Bamatabois': 4, 'Perpetue': 5, 'Simplice': 4, 'Scaufflaire': 4, 'Woman1': 4, 'Judge': 4, 'Champmathieu': 4, 'Brevet': 4, 'Chenildieu': 4, 'Cochepaille': 4, 'Pontmercy': 4, 'Boulatruelle': 4, 'Eponine': 4, 'Anzelma': 4, 'Woman2': 4, 'MotherInnocent': 4, 'Gribier': 5, 'MmeBurgon': 4, 'Jondrette': 5, 'Gavroche': 3, 'Gillenormand': 4, 'Magnon': 5, 'MlleGillenormand': 4, 'MmePontmercy': 5, 'MlleVaubois': 5, 'LtGillenormand': 4, 'Marius': 3, 'BaronessT': 4, 'Mabeuf': 4, 'Enjolras': 3, 'Combeferre': 4, 'Prouvaire': 4, 'Feuilly': 4, 'Courfeyrac': 4, 'Bahorel': 4, 'Bossuet': 3, 'Joly': 4, 'Grantaire': 4, 'MotherPlutarch': 5, 'Gueulemer': 3, 'Babet': 3, 'Claquesous': 4, 'Montparnasse': 3, 'Toussaint': 4, 'Child1': 4, 'Child2': 4, 'Brujon': 4, 'MmeHucheloup': 4}
+: Eccentricity of each author: 3
+: Eccentricity of each author: 5
+
+
+
+#+BEGIN_SRC python
+eccentricity = nx.eccentricity(G)
+print("Eccentricity of each author:", eccentricity)
+#+END_SRC
+
+#+RESULTS:
+: Traceback (most recent call last):
+:   File "<stdin>", line 1, in <module>
+:   File "/tmp/babel-wLN3LZ/python-CYKQSh", line 1, in <module>
+:     eccentricity = nx.eccentricity(G)
+:   File "/home/hindle1/.local/lib/python3.10/site-packages/networkx/utils/backends.py", line 412, in __call__
+:     return self.orig_func(*args, **kwargs)
+:   File "/home/hindle1/.local/lib/python3.10/site-packages/networkx/algorithms/distance_measures.py", line 319, in eccentricity
+:     raise nx.NetworkXError(msg)
+: networkx.exception.NetworkXError: Found infinite path length because the digraph is not strongly connected
+
+
+#+begin_src python
+sccs = list(nx.strongly_connected_components(G))
+
+eccentricities = {}
+for scc in sccs:
+    subgraph = G.subgraph(scc)
+    ecc = nx.eccentricity(subgraph)
+    print(ecc)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+{'Michal Hocko': 0}
+{'Suren Baghdasaryan': 0}
+{'Andrew Morton': 0}
+{'akpm': 0}
+{'Hugh Dickins': 0}
+{'Matthew Wilcox (Oracle)': 0}
+{'Dan Schatzberg': 0}
+{'Sultan Alsawaf': 0}
+{'Feng Tang': 0}
+{'Will Deacon': 0}
+{'Peter Zijlstra': 0}
+{'Ingo Molnar': 0}
+{'Zhiyuan Dai': 0}
+{'Randy Dunlap': 0}
+{'Tang Yizhou': 0}
+{'Yafang Shao': 0}
+{'Christoph Hellwig': 0}
+{'Michel Lespinasse': 0}
+{'Joonsoo Kim': 0}
+{'David Rientjes': 0}
+{'Ilya Dryomov': 0}
+{'Minchan Kim': 0}
+{'Edward Chron': 0}
+{'Tetsuo Handa': 0}
+{'Joel Savitz': 0}
+{'Shakeel Butt': 0}
+{'JÃƒÂ©rÃƒÂ´me Glisse': 0}
+{'yuzhoujian': 0}
+{'Roman Gushchin': 0}
+{'Rodrigo Freire': 0}
+{'Mike Rapoport': 0}
+{'Wang Nan': 0}
+{'Kirill A. Shutemov': 0}
+{'Andrea Arcangeli': 0}
+{'Konstantin Khlebnikov': 0}
+{'Vegard Nossum': 0}
+{'Vladimir Davydov': 0}
+{'Geert Uytterhoeven': 0}
+{'Joe Perches': 0}
+{'Johannes Weiner': 0}
+{'Vlastimil Babka': 0}
+{'Jerome Marchand': 0}
+{'Chen Jie': 0}
+{'Yaowei Bai': 0}
+{'Tejun Heo': 0}
+{'Oleg Nesterov': 0}
+{'Wang Long': 0}
+{'Sha Zhengju': 0}
+{'Lai Jiangshan': 0}
+{'Davidlohr Bueso': 0}
+{'Wanpeng Li': 0}
+{'KAMEZAWA Hiroyuki': 0}
+{'Frantisek Hrbata': 0}
+{'KOSAKI Motohiro': 0}
+{'Andrey Vagin': 0}
+{'Luis Claudio R. Goncalves': 0}
+{'Daisuke Nishimura': 0}
+{'Balbir Singh': 0}
+{'Cyrill Gorcunov': 0}
+{'Nick Piggin': 0}
+{'Qinghuang Feng': 0}
+{'Li Zefan': 0}
+{'Mel Gorman': 0}
+{'Pavel Emelianov': 0}
+{'Serge E. Hallyn': 0}
+{'Andrew Morgan': 0}
+{'Al Viro': 0}
+{'Pavel Emelyanov': 0}
+{'Matthias Kaehlcke': 0}
+{'Christoph Lameter': 0}
+{'Alexey Dobriyan': 0}
+{'Yasunori Goto': 0}
+{'Joshua N Pritikin': 0}
+{'Ankita Garg': 0}
+{'Paul Jackson': 0}
+{'Sukadev Bhattiprolu': 0}
+{'Ram Gupta': 0}
+{'Martin Schwidefsky': 0}
+{'Dave Peterson': 0}
+{'Kurt Garloff': 0}
+{'Kirill Korotaev': 0}
+{'Nishanth Aravamudan': 0}
+{'Anton Blanchard': 0}
+{'Marcelo Tosatti': 0}
+{'Janet Morgan': 0}
+{'Linus Torvalds': 0}
+{'Eric W. Biederman': 0}
+{'Christian Brauner': 0}
+{'Rolf Eike Beer': 0}
+{'Paul E. McKenney': 0}
+{'Thomas Gleixner': 0}
+{'Greg Kroah-Hartman': 0}
+{'Rafael J. Wysocki': 0}
+{'Rusty Russell': 0}
+{'Paul Gortmaker': 0}
+{'David Howells': 0}
+{'Eric Paris': 0}
+{'James Morris': 0}
+#+end_example
+
+
+
+** Calculate Radius(g)
+The radius of the graph is calculated as follows.
+
+#+BEGIN_SRC python
+# in networkx
+# randomly make a new graph that is strongly connected
+try:
+    radius = nx.radius(G)
+    print("Radius of the graph:", radius)
+except Exception as e:
+    print(e)
+
+try:
+    H = nx.erdos_renyi_graph(10,0.5)
+    radius = nx.radius( H )
+    print("Radius of the graph:", radius)
+    nx.draw(H, with_labels=True)
+    plt.show()
+except Exception as e:
+    print(e)
+
+#+end_src
+
+#+RESULTS:
+: Found infinite path length because the digraph is not strongly connected
+: Radius of the graph: 2
+
+** Calculate Diameter(g)
+Finally, we will calculate the graph's diameter.
+
+#+BEGIN_SRC python
+try:
+    diameter = nx.diameter(G)
+    print("Diameter of the graph:", diameter)
+except Exception as e:
+    print(e)
+
+try:
+    H = nx.erdos_renyi_graph(20,0.2)
+    diameter = nx.diameter( H )
+    print("Diameter of the graph:", diameter)
+    radius = nx.radius( H )
+    print("Radius of the graph:", radius)
+    nx.draw(H, with_labels=True)
+    plt.show()
+except Exception as e:
+    print(e)
+
+
+#+END_SRC
+
+#+RESULTS:
+: Found infinite path length because the digraph is not strongly connected
+: Diameter of the graph: 6
+: Radisu of the graph: 3
+
+** Calculate maximum path length between nodes
+
+#+begin_src python
+# Calculate and print the maximum path length
+max_length = nx.dag_longest_path_length(G)
+print("Maximum path length:", max_length)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/tmp/babel-wLN3LZ/python-3jXbM2", line 2, in <module>
+    max_length = nx.dag_longest_path_length(G)
+  File "<class 'networkx.utils.decorators.argmap'> compilation 20", line 4, in argmap_dag_longest_path_length_17
+  File "/home/hindle1/.local/lib/python3.10/site-packages/networkx/utils/backends.py", line 412, in __call__
+    return self.orig_func(*args, **kwargs)
+  File "/home/hindle1/.local/lib/python3.10/site-packages/networkx/algorithms/dag.py", line 1092, in dag_longest_path_length
+    path = nx.dag_longest_path(G, weight, default_weight)
+  File "<class 'networkx.utils.decorators.argmap'> compilation 24", line 4, in argmap_dag_longest_path_21
+  File "/home/hindle1/.local/lib/python3.10/site-packages/networkx/utils/backends.py", line 412, in __call__
+    return self.orig_func(*args, **kwargs)
+  File "/home/hindle1/.local/lib/python3.10/site-packages/networkx/algorithms/dag.py", line 1021, in dag_longest_path
+    for v in topo_order:
+  File "/home/hindle1/.local/lib/python3.10/site-packages/networkx/algorithms/dag.py", line 309, in topological_sort
+    for generation in nx.topological_generations(G):
+  File "/home/hindle1/.local/lib/python3.10/site-packages/networkx/algorithms/dag.py", line 239, in topological_generations
+    raise nx.NetworkXUnfeasible(
+networkx.exception.NetworkXUnfeasible: Graph contains a cycle or graph changed during iteration
+#+end_example
+
+#+begin_src python
+# Calculate and print the maximum path length
+def max_lengths(data):
+    max_length_dict = {}
+    
+    for key, value_dict in data.items():
+        max_length = 0
+        for inner_key, lst in value_dict.items():
+            max_length = max(max_length, len(lst))
+        max_length_dict[key] = max_length
+    
+    return max_length_dict
+
+
+max_length = nx.all_pairs_shortest_path(G)
+print("Maximum path length:", max_lengths(dict(max_length)))
+
+#+end_Src
+
+#+RESULTS:
+: Maximum path length: {'Andrew Morton': 2, 'Michal Hocko': 1, 'Suren Baghdasaryan': 1, 'akpm': 3, 'Matthew Wilcox (Oracle)': 2, 'Hugh Dickins': 1, 'Linus Torvalds': 4, 'Dan Schatzberg': 1, 'Sultan Alsawaf': 1, 'Feng Tang': 1, 'Ingo Molnar': 3, 'Zhiyuan Dai': 1, 'Randy Dunlap': 1, 'Tang Yizhou': 1, 'Yafang Shao': 1, 'Christoph Hellwig': 1, 'Michel Lespinasse': 1, 'Joonsoo Kim': 1, 'David Rientjes': 1, 'Ilya Dryomov': 1, 'Minchan Kim': 1, 'Edward Chron': 1, 'Tetsuo Handa': 1, 'Joel Savitz': 1, 'Shakeel Butt': 1, 'JÃƒÂ©rÃƒÂ´me Glisse': 1, 'yuzhoujian': 1, 'Roman Gushchin': 1, 'Rodrigo Freire': 1, 'Mike Rapoport': 1, 'Wang Nan': 1, 'Kirill A. Shutemov': 1, 'Andrea Arcangeli': 1, 'Konstantin Khlebnikov': 1, 'Vegard Nossum': 1, 'Vladimir Davydov': 1, 'Geert Uytterhoeven': 1, 'Joe Perches': 1, 'Johannes Weiner': 1, 'Vlastimil Babka': 1, 'Jerome Marchand': 1, 'Chen Jie': 1, 'Yaowei Bai': 1, 'Oleg Nesterov': 3, 'Wang Long': 1, 'Sha Zhengju': 1, 'Lai Jiangshan': 1, 'Davidlohr Bueso': 1, 'Wanpeng Li': 1, 'KAMEZAWA Hiroyuki': 1, 'Frantisek Hrbata': 1, 'KOSAKI Motohiro': 1, 'Andrey Vagin': 1, 'Luis Claudio R. Goncalves': 1, 'Daisuke Nishimura': 1, 'Balbir Singh': 1, 'Cyrill Gorcunov': 1, 'Nick Piggin': 1, 'Qinghuang Feng': 1, 'Li Zefan': 1, 'Mel Gorman': 1, 'Pavel Emelianov': 1, 'Serge E. Hallyn': 1, 'Andrew Morgan': 1, 'Al Viro': 1, 'Pavel Emelyanov': 1, 'Matthias Kaehlcke': 1, 'Christoph Lameter': 1, 'Alexey Dobriyan': 1, 'Yasunori Goto': 1, 'Joshua N Pritikin': 1, 'Ankita Garg': 1, 'Paul Jackson': 1, 'Sukadev Bhattiprolu': 1, 'Ram Gupta': 1, 'Martin Schwidefsky': 1, 'Dave Peterson': 1, 'Kurt Garloff': 1, 'Kirill Korotaev': 1, 'Nishanth Aravamudan': 1, 'Anton Blanchard': 1, 'Marcelo Tosatti': 1, 'Janet Morgan': 1, 'Eric W. Biederman': 1, 'Christian Brauner': 1, 'Paul E. McKenney': 2, 'Rolf Eike Beer': 1, 'Peter Zijlstra': 2, 'Will Deacon': 1, 'Greg Kroah-Hartman': 2, 'Thomas Gleixner': 1, 'Tejun Heo': 2, 'Rafael J. Wysocki': 2, 'Rusty Russell': 1, 'Paul Gortmaker': 1, 'James Morris': 2, 'David Howells': 1, 'Eric Paris': 1}
+
+
+
+** Conclusion
+
+In this tutorial, we successfully loaded a dataset, created a directed
+graph representing the relationships between committers and authors,
+and performed various analyses such as betweenness centrality,
+eccentricity, radius, and diameter.
+
+
+
+
