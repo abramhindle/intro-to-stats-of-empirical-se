@@ -1,0 +1,661 @@
+#+TITLE: Granger Causality
+#+PROPERTY: header-args:C             :exports both :eval yes :flags -std=c99 -pedantic -Wall -Wextra -ftrapv -ggdb3 :eval yes :results value verbatim
+#+PROPERTY: header-args:sh            :exports both :eval yes :results value verbatim
+#+PROPERTY: header-args:R             :exports both :eval yes :results output :session
+#+PROPERTY: header-args:shell         :exports both :eval yes :results value verbatim
+
+* Granger Causaility 
+
+** Copyright Statement
+
+CC-BY-SA 4.0 (C) 2025 Abram Hindle
+
+*** Init ORG-MODE
+
+#+BEGIN_SRC elisp
+;; I need this for org-mode to work well
+;; If we have a new org-mode use ob-shell
+;; otherwise use ob-sh --- but not both!
+(if (require 'ob-shell nil 'noerror)
+  (progn
+    (org-babel-do-load-languages 'org-babel-load-languages '((shell . t))))
+  (progn
+    (require 'ob-sh)
+    (org-babel-do-load-languages 'org-babel-load-languages '((sh . t)))))
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((R . t)))
+(org-babel-do-load-languages 'org-babel-load-languages '((C . t)))
+(org-babel-do-load-languages 'org-babel-load-languages '((python . t)))
+(setq org-src-fontify-natively t)
+(setq org-confirm-babel-evaluate nil) ;; danger!
+(custom-set-faces
+ '(org-block ((t (:inherit shadow :foreground "black"))))
+ '(org-code ((t (:inherit shadow :foreground "black")))))
+(setq org-startup-with-inline-images t)
+(setq org-redisplay-inline-images t)
+(add-hook 'org-babel-after-execute-hook 'org-display-inline-images)   
+(add-hook 'org-mode-hook 'org-display-inline-images)   
+#+END_SRC
+
+#+RESULTS:
+| org-display-inline-images | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | #[0 \300\301\302\303\304$\207 [add-hook before-save-hook org-encrypt-entries nil t] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | turn-on-font-lock |
+
+
+* Granger Causality in R
+** What is Granger Causality?
+
+Granger causality is a statistical concept used to determine whether
+one time series can predict another. It's particularly useful in
+econometrics and time series analysis to understand potential causal
+relationships between variables.
+
+** Install Required Packages
+
+You'll typically use one of these packages:
+- lmtest package: Most common for basic Granger causality tests
+- vars package: More comprehensive for vector autoregression models
+
+#+BEGIN_SRC R
+# Install packages
+install.packages(c("lmtest", "vars"))
+#+END_SRC
+
+#+RESULTS:
+
+
+#+BEGIN_SRC R
+# Load libraries
+library(lmtest)
+library(vars)
+library(lmtest)
+library(tseries)
+library(car)
+library(forecast)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+Loading required package: MASS
+Loading required package: strucchange
+Loading required package: sandwich
+Loading required package: urca
+Registered S3 method overwritten by 'quantmod':
+  method            from
+  as.zoo.data.frame zoo 
+
+    ‘tseries’ version: 0.10-54
+
+    ‘tseries’ is a package for time series analysis and computational finance.
+
+    See ‘library(help="tseries")’ for details.
+Loading required package: carData
+#+end_example
+
+** Prepare Your Data
+Your data should be:
+- <b>Stationary time series</b>
+- Typically of equal length
+- Preferably without significant trends or seasonality
+
+** Why Generate Multiple Datasets?
+Generating multiple datasets allows us to explore different scenarios of time series relationships:
+- <b>Totally Correlated Dataset</b>: Demonstrates perfect linear relationship
+- <b>Lagged Correlated Dataset</b>: Shows time-dependent relationships
+- <b>Uncorrelated Dataset</b>: Serves as a control or null hypothesis scenario
+
+#+BEGIN_SRC R
+# Dataset 1: Totally Correlated (Zero Lag)
+n <- 500
+x1 <- rnorm(n)
+y1 <- x1 + rnorm(n, sd = 0.1)  # Highly correlated with minimal noise
+summary(x1)
+summary(y1)
+cor(x1,y1)
+# Dataset 2: Lagged Correlated (Lag of 3)
+x2 <- rnorm(n)
+y2 <- c(rep(0, 3), x2[1:(n-3)]) + rnorm(n, sd = 0.3)  # Lagged correlation
+summary(x2)
+summary(y2)
+cor(x2,y2)
+
+
+# Dataset 3: Uncorrelated 
+x3 <- rnorm(n)
+y3 <- rnorm(n)  # No inherent relationship
+summary(x3)
+summary(y3)
+cor(x3,y3)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+-2.547128 -0.721989  0.065906  0.007516  0.677380  2.671250
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+-2.594755 -0.665546  0.073270  0.007809  0.691227  2.654064
+[1] 0.9949764
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-2.63858 -0.60309  0.03113  0.01310  0.66495  2.97687
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+-2.435516 -0.658101  0.018357  0.004068  0.643643  3.100358
+[1] -0.01792321
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-3.27644 -0.56993  0.03449  0.02381  0.66774  3.13636
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-2.74320 -0.64904 -0.06214 -0.03407  0.58709  3.06080
+[1] 0.01256761
+#+end_example
+
+** Cook's Distance: Identifying Influential Observations
+
+Cook's distance helps identify influential data points that
+disproportionately affect regression models.
+
+Why remove high leverage points?
+- Reduces model bias
+- Prevents outliers from skewing statistical relationships
+- Improves model reliability and interpretability
+
+#+BEGIN_SRC R
+# Function to remove high leverage points
+remove_high_leverage_points <- function(x, y) {
+  model <- lm(y ~ x)
+  cooksd <- cooks.distance(model)
+  
+  # Threshold: 4/n (n is number of observations)
+  threshold <- 4 / length(x)
+  
+  # Remove points exceeding threshold
+  indices <- which(cooksd < threshold)
+  
+  return(list(
+    x = x[indices],
+    y = y[indices]
+  ))
+}
+
+# Apply to each dataset
+clean_data1 <- remove_high_leverage_points(x1, y1)
+clean_data2 <- remove_high_leverage_points(x2, y2)
+clean_data3 <- remove_high_leverage_points(x3, y3)
+
+summary(clean_data1$x)
+summary(x1)
+
+#+END_SRC
+
+#+RESULTS:
+:     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+: -2.83530 -0.65239 -0.02998 -0.01799  0.57757  3.18571
+:      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+: -2.835301 -0.668304 -0.019754  0.002782  0.658317  3.185707
+
+** Plot Timeseries 
+
+#+begin_src R
+
+# put these 3 plots stacked on the same plot
+par(mfrow=c(3,1))
+
+plot(x1, type="l", col="red", ylim=c(min(y1), max(y1)), ylab="Values", xlab="Index")
+# Add y1 as blue lines
+lines(y1, col="blue")
+
+
+plot(x2, type="l", col="red", ylim=c(min(y2), max(y2)), ylab="Values", xlab="Index")
+# Add y2 as blue lines
+lines(y2, col="blue")
+
+
+# plot x3 as red lines and y3 as blue lines
+plot(x3, type="l", col="red", ylim=c(min(y3), max(y3)), ylab="Values", xlab="Index")
+# Add y3 as blue lines
+lines(y3, col="blue")
+par(mfrow=c(1,1))
+
+#+end_src
+
+#+RESULTS:
+
+
+Let's plot the points
+
+#+begin_src R
+# Load necessary library
+library(ggplot2)
+
+# Function to plot original vs cleaned data
+plot_data_comparison <- function(original_x, original_y, cleaned_x, cleaned_y, title) {
+  # Create a data frame for original data
+  original_data <- data.frame(x = original_x, y = original_y, Status = "Original")
+  # Create a data frame for cleaned data
+  cleaned_data <- data.frame(x = cleaned_x, y = cleaned_y, Status = "Cleaned")
+  
+  # Combine the data frames
+  combined_data <- rbind(original_data, cleaned_data)
+  
+  # Generate the plot
+  ggplot(combined_data, aes(x = x, y = y, color = Status)) +
+    geom_point(alpha = 0.5) +
+    labs(title = title, x = "X values", y = "Y values") +
+    theme_minimal() +
+    scale_color_manual(values = c("Original" = "blue", "Cleaned" = "red"))
+}
+#+END_SRC
+
+#+RESULTS:
+
+
+#+begin_src R
+# Plot for Totally Correlated Dataset
+plot_data_comparison(x1, y1, clean_data1$x, clean_data1$y, "Totally Correlated Dataset")
+#+end_src
+
+#+RESULTS:
+
+#+begin_src R
+# Plot for Lagged Correlated Dataset
+plot_data_comparison(x2, y2, clean_data2$x, clean_data2$y, "Lagged Correlated Dataset")
+#+end_src
+
+#+RESULTS:
+
+#+begin_src R
+# Plot for Uncorrelated Dataset
+plot_data_comparison(x3, y3, clean_data3$x, clean_data3$y, "Uncorrelated Dataset")
+#+end_src
+
+#+RESULTS:
+
+
+Let's plot the timeseries as timeseries
+
+#+begin_src R
+
+# put these 3 plots stacked on the same plot
+par(mfrow=c(3,1))
+
+plot(x1, type="l", col="red", ylim=c(min(y1), max(y1)), ylab="Values", xlab="Index")
+# Add y1 as blue lines
+lines(clean_data1$x, col="blue")
+
+
+plot(x2, type="l", col="red", ylim=c(min(y2), max(y2)), ylab="Values", xlab="Index")
+# Add y2 as blue lines
+lines(clean_data2$x, col="blue")
+
+
+# plot x3 as red lines and y3 as blue lines
+plot(x3, type="l", col="red", ylim=c(min(y3), max(y3)), ylab="Values", xlab="Index")
+# Add y3 as blue lines
+lines(clean_data3$x, col="blue")
+
+par(mfrow=c(1,1))
+
+#+end_src
+
+#+RESULTS:
+
+
+
+
+** Augmented Dickey-Fuller (ADF) Test: Checking Stationarity
+
+Stationarity is crucial in time series analysis. The ADF test checks
+if a time series is stationary.
+
+Why is stationarity important?
+- Ensures consistent statistical properties
+- Prevents spurious regression results
+- Validates time series modeling assumptions
+
+Stationarity in a timeseries:
+
+- Constant Mean: The average value of the series remains constant over time.
+- Constant Variance: The variability or spread of the series does not change with time.
+- Constant Autocovariance: The correlation between values at different times depends only on the lag between them, not on actual time.
+
+
+#+BEGIN_SRC R
+# ADF Test for Stationarity
+adf_test <- function(data) {
+  adf_result <- adf.test(data)
+  print(adf_result)
+  
+  # Interpret results
+  if (adf_result$p.value <= 0.05) {
+    cat("Series is stationary (reject null hypothesis)\n")
+  } else {
+    cat("Series is non-stationary (fail to reject null hypothesis)\n")
+  }
+}
+
+# Apply ADF test to cleaned datasets
+adf_test(clean_data1$x)
+adf_test(clean_data1$y)
+adf_test(clean_data2$x)
+adf_test(clean_data2$y)
+adf_test(clean_data3$x)
+adf_test(clean_data3$y)
+print("And not stationary (100 uniforms followed by rnorms around -10)")
+adf_test(c(runif(100),rnorm(100,-10)))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+
+	Augmented Dickey-Fuller Test
+
+data:  data
+Dickey-Fuller = -8.5426, Lag order = 7, p-value = 0.01
+alternative hypothesis: stationary
+
+Series is stationary (reject null hypothesis)
+Warning message:
+In adf.test(data) : p-value smaller than printed p-value
+
+	Augmented Dickey-Fuller Test
+
+data:  data
+Dickey-Fuller = -8.5728, Lag order = 7, p-value = 0.01
+alternative hypothesis: stationary
+
+Series is stationary (reject null hypothesis)
+Warning message:
+In adf.test(data) : p-value smaller than printed p-value
+
+	Augmented Dickey-Fuller Test
+
+data:  data
+Dickey-Fuller = -10.327, Lag order = 7, p-value = 0.01
+alternative hypothesis: stationary
+
+Series is stationary (reject null hypothesis)
+Warning message:
+In adf.test(data) : p-value smaller than printed p-value
+
+	Augmented Dickey-Fuller Test
+
+data:  data
+Dickey-Fuller = -9.1476, Lag order = 7, p-value = 0.01
+alternative hypothesis: stationary
+
+Series is stationary (reject null hypothesis)
+Warning message:
+In adf.test(data) : p-value smaller than printed p-value
+
+	Augmented Dickey-Fuller Test
+
+data:  data
+Dickey-Fuller = -8.0753, Lag order = 7, p-value = 0.01
+alternative hypothesis: stationary
+
+Series is stationary (reject null hypothesis)
+Warning message:
+In adf.test(data) : p-value smaller than printed p-value
+
+	Augmented Dickey-Fuller Test
+
+data:  data
+Dickey-Fuller = -8.9867, Lag order = 7, p-value = 0.01
+alternative hypothesis: stationary
+
+Series is stationary (reject null hypothesis)
+Warning message:
+In adf.test(data) : p-value smaller than printed p-value
+[1] "And not stationary (100 uniforms followed by rnorms around -10)"
+
+	Augmented Dickey-Fuller Test
+
+data:  data
+Dickey-Fuller = -2.0053, Lag order = 5, p-value = 0.5739
+alternative hypothesis: stationary
+
+Series is non-stationary (fail to reject null hypothesis)
+#+end_example
+
+** Interpreting ADF Results
+
+*** Interpretation Guidelines:
+
+The null hypothesis of the Dickey-Fuller test is that a time series
+has a unit root, meaning it is non-stationary and exhibits a random
+walk behavior. In contrast, the alternative hypothesis is that the
+time series is stationary.
+
+A unit root means that a time series is non-stationary and has a
+characteristic where shocks to the series have permanent effects.
+Specifically, a time series with a unit root follows a random walk,
+which implies that its mean and variance are not constant over time,
+making it unpredictable and dependent on its past values.
+
+An example of a time series without a unit root is a stationary time
+series, such as white noise. For instance, consider a series of random
+values generated from a normal distribution with mean zero and
+constant variance.
+
+1. p-value < 0.05: Non-stationary
+2. p-value ≥ 0.05: Stationary
+
+
+** Granger Causality: Understanding Temporal Relationships
+
+*** Why Granger Causality?
+Granger causality tests whether one time series is useful in forecasting another:
+- Examines predictive causality
+- Determines if past values help predict future values
+- Goes beyond simple correlation
+
+If lagged timeseries correlate therefore maybe the lagged timeseries causes the response.
+
+
+#+BEGIN_SRC R
+# Granger Causality Test Function
+perform_granger_causality <- function(x, y) {
+  # Ensure data is in time series format
+  x_ts <- ts(x)
+  y_ts <- ts(y)
+  
+  # Perform Granger causality test
+  # Different lag specifications
+  lags <- c(1, 3, 5)
+  
+  for (lag in lags) {
+    # Test X causes Y
+    x_to_y <- grangertest(y_ts ~ x_ts, order = lag)
+    
+    # Test Y causes X
+    y_to_x <- grangertest(x_ts ~ y_ts, order = lag)
+    
+    cat("\nGranger Causality Test (Lag =", lag, ")\n")
+    
+    # Interpret X to Y causality
+    if (x_to_y$`Pr(>F)`[2] < 0.05) {
+      cat("X significantly Granger-causes Y (p <", 
+          x_to_y$`Pr(>F)`[2], ")\n")
+    } else {
+      cat("X does not Granger-cause Y\n")
+    }
+    
+    # Interpret Y to X causality
+    if (y_to_x$`Pr(>F)`[2] < 0.05) {
+      cat("Y significantly Granger-causes X (p <", 
+          y_to_x$`Pr(>F)`[2], ")\n")
+    } else {
+      cat("Y does not Granger-cause X\n")
+    }
+  }
+}
+
+# Apply Granger causality to datasets
+cat("Dataset 1 (Totally Correlated):\n")
+perform_granger_causality(clean_data1$x, clean_data1$y)
+
+cat("\nDataset 2 (Lagged Correlated):\n")
+perform_granger_causality(clean_data2$x, clean_data2$y)
+
+cat("\nDataset 3 (Uncorrelated):\n")
+perform_granger_causality(clean_data3$x, clean_data3$y)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+Dataset 1 (Totally Correlated):
+
+Granger Causality Test (Lag = 1 )
+X does not Granger-cause Y
+Y does not Granger-cause X
+
+Granger Causality Test (Lag = 3 )
+X does not Granger-cause Y
+Y does not Granger-cause X
+
+Granger Causality Test (Lag = 5 )
+X does not Granger-cause Y
+Y does not Granger-cause X
+
+Dataset 2 (Lagged Correlated):
+
+Granger Causality Test (Lag = 1 )
+X does not Granger-cause Y
+Y does not Granger-cause X
+
+Granger Causality Test (Lag = 3 )
+X significantly Granger-causes Y (p < 8.960715e-84 )
+Y does not Granger-cause X
+
+Granger Causality Test (Lag = 5 )
+X significantly Granger-causes Y (p < 2.371222e-80 )
+Y does not Granger-cause X
+
+Dataset 3 (Uncorrelated):
+
+Granger Causality Test (Lag = 1 )
+X does not Granger-cause Y
+Y does not Granger-cause X
+
+Granger Causality Test (Lag = 3 )
+X does not Granger-cause Y
+Y does not Granger-cause X
+
+Granger Causality Test (Lag = 5 )
+X does not Granger-cause Y
+Y significantly Granger-causes X (p < 0.003424697 )
+#+end_example
+
+** Interpreting Granger Causality Results
+
+*** Interpretation Guidelines:
+1. p-value < 0.05: Significant Granger causality
+2. p-value ≥ 0.05: No significant Granger causality
+3. Asymmetric results possible (X causes Y, but not vice versa)
+
+** Dangers
+
+- *Spurious Relationships*: Correlation does not imply causation. Variables may appear related due to confounding factors or common causes.
+- *Lag Specification*: Choosing incorrect lags can lead to misleading results. The choice of lag length can affect interpretations significantly.
+- *Model Misspecification*: The underlying model may not capture all relevant dynamics, leading to incorrect conclusions.
+- *Stationarity Assumption*: Granger causality tests require stationary time series. Non-stationary data can produce unreliable results.
+- *Overfitting*: Including too many lags may lead to overfitting, where the model fits noise rather than the true underlying relationship.
+- *Asymmetry Risks*: It can suggest asymmetrical relationships, where one variable is said to cause another without confirming the reverse.
+- *Interpretation Risks*: Misinterpretation
+
+** Granger is multidimensional 
+
+To illustrate here's a multivariate Granger causality test, where three time series (X1, X2, X3) cause Y in the first example and do not cause Y in the second example.
+
+*** Example 1: X1, X2, and X3 cause Y
+
+
+#+begin_src R
+# Create time series data
+n <- 100
+Y <- ts(rnorm(n))
+X1 <- ts(runif(n))
+X2 <- ts(rnorm(n))
+X3 <- ts(rnorm(n))
+
+# Simulate Y as a function of past values of X1, X2, and X3
+for (t in 4:n) {
+  Y[t] <- 0.5 * Y[t - 1] + 0.9 * X1[t - 2] + 0.5 * X2[t - 3] + 0.3 * X3[t - 1] + rnorm(1)
+}
+
+# Combine into a data frame
+data <- data.frame(Y, X1, X2, X3)
+
+# Fit a VAR model
+var_model <- VAR(data, p = 3)
+
+# Perform Granger causality test
+causality_results <- causality(var_model, cause = c("X1", "X2", "X3"))
+
+# Print results
+print(causality_results)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+$Granger
+
+	Granger causality H0: X1 X2 X3 do not Granger-cause Y
+
+data:  VAR object var_model
+F-Test = 4.08, df1 = 9, df2 = 336, p-value = 5.477e-05
+
+
+$Instant
+
+	H0: No instantaneous causality between: X1 X2 X3 and Y
+
+data:  VAR object var_model
+Chi-squared = 1.4628, df = 3, p-value = 0.6909
+#+end_example
+
+
+
+*** Example 2: X1, X2, and X3 do NOT cause Y
+
+#+begin_src R
+# Set seed for reproducibility
+# Create time series data without causation
+Y2 <- ts(rnorm(100))
+X1 <- ts(rnorm(100))
+X2 <- ts(rnorm(100))
+X3 <- ts(rnorm(100))
+
+# No relationship to Y
+data2 <- data.frame(Y2, X1, X2, X3)
+
+# Fit VAR model
+var_model2 <- VAR(data2, p = 2)
+
+# Perform Granger causality test
+causality(var_model2, cause = c("X1", "X2", "X3"))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+$Granger
+
+	Granger causality H0: X1 X2 X3 do not Granger-cause Y2
+
+data:  VAR object var_model2
+F-Test = 0.93334, df1 = 6, df2 = 356, p-value = 0.4709
+
+
+$Instant
+
+	H0: No instantaneous causality between: X1 X2 X3 and Y2
+
+data:  VAR object var_model2
+Chi-squared = 0.95768, df = 3, p-value = 0.8115
+#+end_example
+
